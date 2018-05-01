@@ -1,0 +1,19 @@
+#BlueJ class context
+comment0.target=Consulta
+comment1.params=
+comment1.target=Consulta()
+comment2.params=c
+comment2.target=Consulta(Consulta)
+comment3.params=NIFc\ NIFe\ c
+comment3.target=Consulta(java.lang.String,\ java.lang.String,\ java.util.GregorianCalendar)
+comment4.params=
+comment4.target=java.lang.String\ getNIFc()
+comment5.params=
+comment5.target=java.lang.String\ getNIFe()
+comment6.params=
+comment6.target=java.util.GregorianCalendar\ getData()
+comment7.params=
+comment7.target=Consulta\ clone()
+comment8.params=
+comment8.target=java.lang.String\ toString()
+numComments=9
