@@ -31,7 +31,7 @@ public class Menu
             System.out.println(this.opcoes.get(i)); 
         }
         System.out.println("  0 - Sair"); 
-        System.out.println("******************************************");
+        System.out.println("************************************");
     }
 
     private int lerOpcao() {  

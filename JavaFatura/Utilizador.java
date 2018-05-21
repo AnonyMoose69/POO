@@ -78,8 +78,14 @@ public abstract class Utilizador implements Serializable
        str = new StringBuilder(); 
        str.append("   NIF: "); 
        str.append(this.NIF+"\n"); 
+       str.append("   Email: "); 
+       str.append(this.email+"\n"); 
        str.append("   Nome: "); 
        str.append(this.nome+"\n"); 
+       str.append("   Morada: "); 
+       str.append(this.morada+"\n"); 
+       str.append("   Password: "); 
+       str.append(this.password+"\n");
        return str.toString();
    
     }

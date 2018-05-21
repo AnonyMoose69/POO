@@ -53,9 +53,7 @@ public class JavaFaturaAPP
                   case 1: registo(); 
                           break; 
                   case 2: iniciarSessao(); 
-                          break; 
-                  case 3: menu(); 
-                          break; 
+                          break;  
                   case 0: running = 0;
             }
     } 
@@ -80,7 +78,7 @@ public class JavaFaturaAPP
                          "Fechar sessão"}; 
         String[] menu1 = {"Registar Utilizador", 
                          "Iniciar sessão", 
-                         "Menu"};  
+                         };  
         String[] menu2 = {"Individual",  
                          "Empresa"}; 
         String[] menu3 = {"Aceder às faturas", 
@@ -143,8 +141,9 @@ public class JavaFaturaAPP
                          agregado = is.nextInt(); 
                          System.out.print("Coeficiente fiscal: "); 
                          COEFiscal = is.nextInt(); 
-                         System.out.print("NIF Agregado: \n"); 
-                         NIFagregado = is.nextLine();                           
+                         System.out.print("NIF Agregado: "); 
+                         is.nextLine();
+                         NIFagregado = is.nextLine();                                                    
                          System.out.print("Atividade económica: "); 
                          ativEco = is.nextLine(); 
                          user = new Individual(NIF,nome,email,morada,password,NIFagregado,ativEco,agregado,COEFiscal,null);

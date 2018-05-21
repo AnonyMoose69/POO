@@ -10,7 +10,8 @@ import java.util.TreeMap;
 import java.util.List; 
 import java.util.GregorianCalendar;
 import java.io.Serializable;
-import java.io.IOException; 
+import java.io.IOException;  
+import java.io.FileNotFoundException;
 import java.io.ObjectOutputStream; 
 import java.io.FileInputStream; 
 import java.io.ObjectInputStream; 
@@ -175,16 +176,18 @@ public class JavaFatura
     }
 
     /** grava o estado da applic num determinado ficheiro */
-    public void gravaObj(String fich) throws IOException { 
-        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fich)); 
+    public void gravaObj(String fich) throws IOException, FileNotFoundException { 
+        FileOutputStream fos = new FileOutputStream(fich);
+        ObjectOutputStream oos = new ObjectOutputStream(fos); 
         oos.writeObject(this); 
         
         oos.flush(); 
         oos.close();
     }
 
-    public static JavaFatura leObj(String fich) throws IOException , ClassNotFoundException{ 
-        ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fich)); 
+    public static JavaFatura leObj(String fich) throws IOException , ClassNotFoundException, FileNotFoundException{ 
+        FileInputStream fos = new FileInputStream(fich);
+        ObjectInputStream ois = new ObjectInputStream(fos); 
         
         JavaFatura fe = (JavaFatura) ois.readObject(); 
         
