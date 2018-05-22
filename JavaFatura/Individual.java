@@ -1,6 +1,8 @@
 import java.util.Map; 
 import java.util.HashMap; 
-import java.util.stream.Collectors; 
+import java.util.stream.Collectors;  
+import java.util.List; 
+import java.util.ArrayList;
 import static java.util.stream.Collectors.toMap; 
 
 public class Individual extends Utilizador

@@ -18,7 +18,7 @@ import java.io.ObjectInputStream;
 import java.io.FileWriter; 
 import java.io.FileOutputStream;
 
-public class JavaFatura
+public class JavaFatura implements Serializable
 {
     //Variaveis de instancia 
     private Map<String,Fatura> faturas; 
@@ -95,8 +95,11 @@ public class JavaFatura
         int i = 0; 
         ArrayList<Consulta> lista = new ArrayList<Consulta>();
         if(this.utilizador.getClass().getSimpleName().equals("Individual")) { 
-               Individual iv = (Individual) this.utilizador; 
-               for(Fatura fat: iv.getFatura().values()){ 
+               
+                Individual iv = (Individual) this.utilizador; 
+                System.out.print(iv.getFatura().toString());                
+                
+                for(Fatura fat: iv.getFatura().values()){ 
                    Iterator<Consulta> it; 
                    it = fat.getConsultas().iterator();
                    while(it.hasNext()){ 
@@ -110,7 +113,8 @@ public class JavaFatura
                    ArrayList<Consulta> lista_final = new ArrayList<Consulta>(lista.subList(0,11));
                    return lista_final;
                 } 
-        }    
+               
+            }    
         else if(this.utilizador.getClass().getSimpleName().equals("Empresa")) { 
                Empresa e = (Empresa) this.utilizador; 
                for(Fatura fat: e.getFaturas().values()){ 
@@ -149,8 +153,7 @@ public class JavaFatura
         return this.id;
     }
     /* talvez mudar f.getConsultas() para f.getFaturas() ?? */
-    public Set<String> getTopFaturas(){ 
-        int n = 10; 
+    public Set<String> getTopFaturas(int n){ 
         Set<String> lista = new HashSet<String>(); 
         Empresa e = (Empresa) this.utilizador; 
         for(Fatura f : e.getFaturas().values()){ 
@@ -161,14 +164,34 @@ public class JavaFatura
         return lista;
     }
     
-    public List<Fatura> getFaturas(String classe){ 
+    public Map <Fatura,Individual> getMapeamentoFaturas() { 
+        Map<Fatura,Individual> faturas = new HashMap<Fatura,Individual>(); 
+        
+        for(Fatura f : this.faturas.values()){ 
+            for(Utilizador util : this.utilizadores.values()){ 
+                if(util.getClass().getSimpleName().equals("Individual")){ 
+                    Individual e = (Individual) util; 
+                    if(e.getFatura().containsValue(f)){ 
+                        faturas.put(f,e); 
+                        break;
+                    }
+                
+                }
+            
+            }
+        }
+        return faturas;
+    }
+    
+    public List<Fatura> getFaturas(String NIF){ 
         ArrayList<Fatura> f = new ArrayList<Fatura>(); 
         for(Fatura l: this.faturas.values()) { 
-            if((l.getClass().getSimpleName().equals(classe))){ 
+            //o get simple name so da o nome da classe ou seja isto nao interessa para nada porque n ha classe NIF 
+            if(l.getNIFc().equals(NIF)){ 
                 Fatura nova = (Fatura) l; 
                 GregorianCalendar data = new GregorianCalendar(); 
-                if(this.utilizador != null) l.adicionaConsulta(this.utilizador.getNIF(),data);
-                else l.adicionaConsulta("N/A",data); 
+                if(this.utilizador != null) l.adicionaConsulta(l.getNIFe(),l.getNIFc(), data);
+                else l.adicionaConsulta("N/A", "N/A", data); 
                 f.add(nova.clone());
             }
         }
@@ -195,15 +218,7 @@ public class JavaFatura
         return fe;   
     }
 
-    public void log(String f, boolean ap) throws IOException{ 
-        FileWriter fw = new FileWriter(f,ap); 
-        fw.write("\n-------------------------- LOG --------------------------\n"); 
-        fw.write(this.toString()); 
-        fw.write("\n-------------------------- LOG --------------------------\n"); 
-        fw.flush(); 
-        fw.close();
-    }
-
+    /** poderá estar aqui o erro **/
     public String toString(){ 
         StringBuilder str; 
         str = new StringBuilder(); 

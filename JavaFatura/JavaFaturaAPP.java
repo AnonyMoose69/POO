@@ -15,18 +15,18 @@ public class JavaFaturaAPP
     private static Menu menu_principal,menu_registo,menu_individual, 
                         menu_empresa, menu_individual_registado, 
                         menu_empresa_registado, menu_cria_fatura, 
+                        menu_acede_fatura, 
                         menu_logado;
     
     private JavaFaturaAPP() {} 
     
     public static void main(String[] args) {  
-        String file_name = "fat_estado"; 
+        String file_name = "fat_estado.txt"; 
         carregarMenus(); 
         initApp(file_name); 
         apresentarMenu(); 
         try { 
             jafat.gravaObj(file_name); 
-            jafat.log("log.txt", true);
         }
         catch (IOException e) {  
             System.out.println("Não consegui gravar os dados!");
@@ -56,9 +56,9 @@ public class JavaFaturaAPP
                           break;  
                   case 0: running = 0;
             }
+        } 
+    }    while(running!=0);
     } 
-}  while(running!=0);
-} 
     
     private static void menu() {  
     
@@ -70,7 +70,7 @@ public class JavaFaturaAPP
             running_menu_empresa();
         else running_menu_individual();
         }
-} 
+    } 
 
 
     private static void carregarMenus() {  
@@ -82,14 +82,17 @@ public class JavaFaturaAPP
         String[] menu2 = {"Individual",  
                          "Empresa"}; 
         String[] menu3 = {"Aceder às faturas", 
-                         "Alterar fatura"};
+                         "Classificar fatura por setor"};
         String[] menu4 = {"Associar fatura"}; 
+        String[] menu5 = {"Fatura Nova"};
+                         
         
         menu_logado = new Menu(menu0);  
         menu_principal = new Menu(menu1); 
         menu_registo = new Menu(menu2);  
         menu_individual = new Menu(menu3); 
-        menu_empresa = new Menu(menu4);
+        menu_empresa = new Menu(menu4);  
+        menu_cria_fatura = new Menu(menu5);
     }
   
     /** carrega o estado da aplicação desde a últiva vez que foi fechada. */
@@ -192,7 +195,7 @@ public class JavaFaturaAPP
         do{ 
             menu_individual.executa(); 
             switch(menu_individual.getOpcao()){  
-                case 1: consultarFaturas(); 
+                case 1: consultaFaturas(); 
                         break;   
                 case 2: alteraFatura(); 
                         break;
@@ -205,12 +208,37 @@ public class JavaFaturaAPP
         do{ 
             menu_empresa.executa(); 
             switch(menu_empresa.getOpcao()){  
-                case 1: associarFaturas(); 
+                case 1: adicionaFatura(); 
                         break;             
             }
         }while(menu_empresa.getOpcao() != 0);    
     }
     
+    private static void running_menu_acede_fatura() { 
+        do{ 
+            menu_acede_fatura.executa(); 
+            switch(menu_acede_fatura.getOpcao()){ 
+                case 1: consultarFaturas(); 
+                        break;
+            }
+    
+        }while(menu_acede_fatura.getOpcao() != 0); 
+    }
+    
+    private static void faturaIndividual(){ 
+        Map<Fatura,Individual> faturaIndividual = new TreeMap<Fatura,Individual>(); 
+        faturaIndividual = jafat.getMapeamentoFaturas(); 
+        for(Map.Entry<Fatura,Individual> entry : faturaIndividual.entrySet()){ 
+            Fatura f = entry.getKey(); 
+            Individual i = entry.getValue(); 
+            System.out.println("\n****************** Faturas *******************"); 
+            System.out.println(f); 
+            System.out.println(i); 
+            System.out.println("*************************************");
+        
+        }
+    
+    }
     /** Consulta faturas dado um determinado NIF */
     private static void consultarFaturas(){ 
         List<Consulta> lista = new ArrayList<Consulta>(); 
@@ -229,13 +257,13 @@ public class JavaFaturaAPP
     /**func que retorna os 10 cont com mais despesas*/
     private static void topContribuidores(){   
         Set<String> lista = new HashSet<String>(); 
-        lista = jafat.getTopFaturas(); 
+        lista = jafat.getTopFaturas(10); 
         for(String  i:lista){ 
             System.out.println(i);
         }
     }
     
-    /**adiciona fatura a um det contribuinte*/
+    /**adiciona fatura a JavaFatura*/
     private static void adicionaFatura(){  
         Fatura fat = criaFatura(); 
         if(fat!=null){  
@@ -247,92 +275,40 @@ public class JavaFaturaAPP
             }
         }               
     }
-
+   
+   /** cria fatura para ser adicionada a Javafatura **/
    private static Fatura criaFatura(){  
        Fatura fatura = null; 
        Scanner is = new Scanner(System.in); 
        
-       menu_cria_fatura.executa(); 
-       if(menu_cria_fatura.getOpcao() != 0){  
+       menu_cria_fatura.executa();
+       if(menu_cria_fatura.getOpcao() != 0){ 
            String NIFe,desig,data,NIFc,desc,natDes; 
-           Long preco; 
-           System.out.print("Nif emitente: "); 
-           NIFe = is.nextLine(); 
-           NIFc = inputNIFc(); 
+           int preco = 0; 
            
-           switch(menu_cria_fatura.getOpcao()){  
-               case 1:  desig = inputDesig(); 
-                        desc = inputDesc();
-                        data = inputData(); 
-                        natDes = inputNatDes(); 
-                        preco = inputPreco();
-                        fatura = new Fatura(NIFe,desig,data,NIFc,desc,natDes,preco,null); 
-                        break; 
+           System.out.print("Nif emitente: "); 
+           NIFe = is.nextLine();
+           System.out.print("NIF contribuinte: "); 
+           NIFc = is.nextLine(); 
+           System.out.print("Designação do emitente: "); 
+           desig = is.nextLine(); 
+           System.out.print("Descrição da despesa: "); 
+           desc = is.nextLine(); 
+           System.out.print("Data da despesa: "); 
+           data = is.nextLine(); 
+           System.out.print("Natureza da despesa: "); 
+           natDes = is.nextLine(); 
+           System.out.print("Valor da despesa: "); 
+           try{ 
+               preco = is.nextInt();
+           } catch(InputMismatchException e) { 
+               System.out.println("Valor da despesa inválido!");                
            }
-           is.close();        
-       }
+           fatura = new Fatura(NIFe,desig,data,NIFc,desc,natDes,preco,null);
+        }    
+       is.close(); 
        return fatura;
-   } 
-
-   private static String inputNIFc(){ 
-       String NIFc; 
-       System.out.print("Nif do emitente: "); 
-       Scanner is = new Scanner(System.in); 
-       NIFc = is.nextLine(); 
-       is.close(); 
-       return NIFc;
    }
-
-   private static String inputDesig(){ 
-       String desig; 
-       System.out.print("Designação do emitente: "); 
-       Scanner is = new Scanner(System.in); 
-       desig = is.nextLine(); 
-       is.close(); 
-       return desig;    
-   }
-
-   private static String inputDesc(){ 
-       String desc; 
-       System.out.print("Descrição da despesa: "); 
-       Scanner is = new Scanner(System.in); 
-       desc = is.nextLine(); 
-       is.close(); 
-       return desc;
-   }
-
-   private static String inputData(){ 
-       String data; 
-       System.out.print("Data da despesa: "); 
-       Scanner is = new Scanner(System.in); 
-       data = is.nextLine(); 
-       is.close(); 
-       return data;
-   }
-
-   private static String inputNatDes(){ 
-       String natDes; 
-       System.out.print("Natureza da despesa: "); 
-       Scanner is = new Scanner(System.in); 
-       natDes = is.nextLine(); 
-       is.close(); 
-       return natDes;
-   }
-
-   private static Long inputPreco(){ 
-       Long preco; 
-       System.out.print("Valor da despesa: ");
-       Scanner is = new Scanner(System.in); 
-       try{ 
-           preco = is.nextLong();
-        }
-       catch(InputMismatchException e){ 
-           System.out.println("Número inválido!"); 
-           preco = inputPreco();           
-       }
-       is.close(); 
-       return preco;
-    }
 
     private static void alteraFatura(){ 
         String NIF, desc; 
@@ -350,16 +326,18 @@ public class JavaFaturaAPP
                 is.close();
     }
     
-    private static void associarFaturas(){ 
-       Scanner is = new Scanner(System.in); 
-       List<Fatura> lista = new ArrayList<Fatura>(); 
-       String NIF; 
-       NIF = (String) inputNIFc(); 
-       
-       lista = jafat.getFaturas(NIF); 
-       for(Fatura f: lista) 
-          System.out.println(f); 
-       is.close();
+    //consulta faturas do contribuinte com determinado NIF
+    private static void consultaFaturas(){ 
+        Scanner is = new Scanner(System.in); 
+        List<Fatura> lista = new ArrayList<Fatura>(); 
+        String NIF; 
+        System.out.print("NIF do contribuinte: ");
+        NIF = is.nextLine(); 
+        
+        lista = jafat.getFaturas(NIF); 
+        if(lista.isEmpty()) System.out.print("\nNão tem faturas associadas!");
+        for(Fatura f : lista) 
+            System.out.println(f); 
+        is.close();
     }
-
 }

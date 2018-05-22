@@ -22,7 +22,7 @@ public class Fatura implements Serializable
     /* Natureza da Despesa - Código da atividade económica */
     private String NatDes; 
     /* Valor da despesa */
-    private long ValDes;  
+    private int ValDes;  
     /* lista com consultas de cada fatura */
     private List<Consulta> consultas; 
 
@@ -52,7 +52,7 @@ public class Fatura implements Serializable
         }
     }
 
-    public Fatura(String NIFe, String DESIGe, String Data, String NIFc, String Desc, String NatDes, long ValDes, ArrayList<Consulta> cons){ 
+    public Fatura(String NIFe, String DESIGe, String Data, String NIFc, String Desc, String NatDes, int ValDes, ArrayList<Consulta> cons){ 
         this.NIFe = NIFe; 
         this.DESIGe = DESIGe; 
         this.Data = Data; 
@@ -89,7 +89,7 @@ public class Fatura implements Serializable
     public String getNatDes(){ 
         return this.NatDes;
     }
-    public long getValDes(){ 
+    public int getValDes(){ 
         return this.ValDes;
     }
 
@@ -111,7 +111,7 @@ public class Fatura implements Serializable
     public void setNatDes(String NatDes){ 
         this.NatDes = NatDes;
     }
-    public void setValDes(long ValDes){ 
+    public void setValDes(int ValDes){ 
         this.ValDes= ValDes;
     }
 
@@ -136,12 +136,14 @@ public class Fatura implements Serializable
     }
 
     /* Adiciona uma consulta a uma lista de consultas de uma fatura */ 
-    public void adicionaConsulta(String NIFe, GregorianCalendar data){ 
+    public void adicionaConsulta(String NIFe, String NIFc, GregorianCalendar data){ 
         Consulta nova = new Consulta(NIFe,NIFc,data); 
         this.consultas.add(nova);
     }
 
-    public Fatura clone(){return new Fatura(this);} 
+    public Fatura clone(){ 
+        return new Fatura(this);
+    }
     
     public boolean equals(Object obj){ 
         if(obj == this){ 
