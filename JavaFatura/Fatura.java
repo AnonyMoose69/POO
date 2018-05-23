@@ -24,7 +24,7 @@ public class Fatura implements Serializable
     /* Valor da despesa */
     private int ValDes;  
     /* lista com consultas de cada fatura */
-    private List<Consulta> consultas; 
+    private List<Consulta> consultas;  
 
     public Fatura(){ 
         this.NIFe = "n/a"; 
@@ -162,7 +162,7 @@ public class Fatura implements Serializable
     public String toString(){ 
     StringBuilder str; 
     str = new StringBuilder(); 
-    str.append("*************** FATURA ***************\n"); 
+    str.append("\n*************** FATURA ***************\n"); 
     str.append("NIF emitente: "); 
     str.append(this.NIFe+"\n"); 
     str.append("Designação do emitente: "); 
@@ -177,6 +177,7 @@ public class Fatura implements Serializable
     str.append(this.NatDes+"\n"); 
     str.append("Valor da despesa: "); 
     str.append(this.ValDes+"\n"); 
+    str.append("**************************************\n");
     return str.toString();    
     }
 }

@@ -38,12 +38,12 @@ public class JavaFatura implements Serializable
         
         this.faturas = new TreeMap<String,Fatura>(); 
         for(Fatura fatura : i.values()){ 
-            this.faturas.put(fatura.getNIFe(),fatura.clone());
+            this.faturas.put(fatura.getNIFc(),fatura.clone());   //mudei NIFe para NIFc
         }
         
         this.utilizadores = new TreeMap<String,Utilizador>(); 
         for(Utilizador utilizador : u.values()){  
-            this.utilizadores.put(utilizador.getEmail(),utilizador.clone());
+            this.utilizadores.put(utilizador.getNIF(),utilizador.clone());
         }    
     }
 
@@ -135,12 +135,12 @@ public class JavaFatura implements Serializable
         else throw new SemAutorizacaoException("Apenas empresas estão autorizadas a aceder.");
         }
     /* muda o estado de uma fatura */
-    public void setFatura(String NIF, String ativ) throws FaturaInexistenteException , SemAutorizacaoException , EstadoInvalidoException { 
+    public void setFatura(String NIF, String natDes) throws FaturaInexistenteException , SemAutorizacaoException , EstadoInvalidoException { 
         
         if(this.utilizador.getClass().getSimpleName().equals("Individual")){ 
             Fatura i = this.faturas.get(NIF); 
             if (i!=null){ 
-                i.setDesc(ativ); 
+                i.setNatDes(natDes); 
             } else throw new EstadoInvalidoException("Fatura inválida.");
         } else throw new SemAutorizacaoException("Sem autorizacao para efetuar ação");
     }
@@ -186,12 +186,14 @@ public class JavaFatura implements Serializable
     public List<Fatura> getFaturas(String NIF){ 
         ArrayList<Fatura> f = new ArrayList<Fatura>(); 
         for(Fatura l: this.faturas.values()) { 
-            //o get simple name so da o nome da classe ou seja isto nao interessa para nada porque n ha classe NIF 
+            //o get simple name so da o nome da classe ou seja isto nao interessa para nada porque n ha classe NIF  && l.getClass().getSimpleName().equals("Individual")
             if(l.getNIFc().equals(NIF)){ 
                 Fatura nova = (Fatura) l; 
-                GregorianCalendar data = new GregorianCalendar(); 
+                /*                                              Esta merda ta a foder para caralho lol
+                GregorianCalendar data = new GregorianCalendar();                 
                 if(this.utilizador != null) l.adicionaConsulta(l.getNIFe(),l.getNIFc(), data);
                 else l.adicionaConsulta("N/A", "N/A", data); 
+                */
                 f.add(nova.clone());
             }
         }
