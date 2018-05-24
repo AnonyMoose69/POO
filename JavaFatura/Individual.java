@@ -8,7 +8,7 @@ import static java.util.stream.Collectors.toMap;
 public class Individual extends Utilizador
 {
    /* Lista com todas as faturas associadas ao individuo */ 
-   private Map<String,Fatura> faturas; 
+   private Map<Integer,Fatura> faturas; 
    /* Números de identificação fiscal do agregado familiar */
    private String NIFs; 
    /* Códigos da atividade económica */
@@ -25,7 +25,7 @@ public class Individual extends Utilizador
        this.CodigosAtiv = "n/a"; 
        this.Dependentes = 0; 
        this.COEFiscal = 0;
-       this.faturas = new HashMap<String,Fatura>();
+       this.faturas = new HashMap<Integer,Fatura>();
    }
 
    public Individual(Individual i){ 
@@ -33,21 +33,21 @@ public class Individual extends Utilizador
        this.faturas = i.getFatura();
    }
 
-   public Individual(String NIF, String nome, String email, String morada, String password, String NIFs, String codigos, int Depend, int Coef, HashMap<String,Fatura> f){ 
+   public Individual(String NIF, String nome, String email, String morada, String password, String NIFs, String codigos, int Depend, int Coef, HashMap<Integer,Fatura> f){ 
        super(NIF,nome,email,morada,password);
        this.NIFs = NIFs;         
        this.CodigosAtiv = codigos; 
        this.COEFiscal = Coef; 
        this.Dependentes = Depend;
-       this.faturas = new HashMap<String,Fatura>(); 
+       this.faturas = new HashMap<Integer,Fatura>(); 
        if(f!=null)this.setFatura(f);
    }
 
-   public Map<String,Fatura> getFatura(){ 
+   public Map<Integer,Fatura> getFatura(){ 
        return this.faturas.entrySet().stream().collect(toMap(e->e.getKey(), e->e.getValue().clone()));
    }
 
-   public void setFatura(Map<String,Fatura> faturas){ 
+   public void setFatura(Map<Integer,Fatura> faturas){ 
        this.faturas = faturas.entrySet().stream().collect(toMap(e->e.getKey(), e->e.getValue())); 
    }
    
@@ -79,7 +79,7 @@ public class Individual extends Utilizador
    }
 
    public void adicionaFatura(Fatura f){ 
-       this.faturas.put(f.getNIFe(),f);
+       this.faturas.put(f.getId(),f);
    }
 
    public void removeFatura(Fatura f){ 

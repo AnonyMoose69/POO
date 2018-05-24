@@ -1,11 +1,12 @@
 import java.util.Set; 
 import java.util.TreeSet; 
-import java.util.Collections; 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator; 
 import java.util.HashSet; 
 import java.util.Map; 
 import java.util.HashMap; 
-import java.util.ArrayList; 
+import java.util.ArrayList;
 import java.util.TreeMap; 
 import java.util.List; 
 import java.util.GregorianCalendar;
@@ -21,24 +22,24 @@ import java.io.FileOutputStream;
 public class JavaFatura implements Serializable
 {
     //Variaveis de instancia 
-    private Map<String,Fatura> faturas; 
+    private Map<Integer,Fatura> faturas; 
     private Map<String,Utilizador> utilizadores; 
     private Utilizador utilizador; 
     private int id;
 
     public JavaFatura(){ 
-        this.faturas = new TreeMap<String,Fatura>(); 
+        this.faturas = new TreeMap<Integer,Fatura>(); 
         this.utilizadores = new TreeMap<String,Utilizador>(); 
         this.utilizador = null; 
         this.id = 0;
     }
 
-    public JavaFatura(TreeMap<String,Utilizador> u, TreeMap<String,Fatura> i){ 
+    public JavaFatura(TreeMap<String,Utilizador> u, TreeMap<Integer,Fatura> i){ 
         this.utilizador = null; 
         
-        this.faturas = new TreeMap<String,Fatura>(); 
+        this.faturas = new TreeMap<Integer,Fatura>(); 
         for(Fatura fatura : i.values()){ 
-            this.faturas.put(fatura.getNIFc(),fatura.clone());   //mudei NIFe para NIFc
+            this.faturas.put(fatura.getId(),fatura.clone());   //mudei NIFe para NIFc
         }
         
         this.utilizadores = new TreeMap<String,Utilizador>(); 
@@ -87,7 +88,8 @@ public class JavaFatura implements Serializable
    public void registaFatura(Fatura fat) throws FaturaExisteException , SemAutorizacaoException{ 
         if(this.utilizador.getClass().getSimpleName().equals("Empresa")){ 
             if(this.faturas.containsValue(fat) == false){ 
-                this.faturas.put(fat.getNIFc(),fat); 
+                fat.setId(this.id);
+                this.faturas.put(this.id,fat);
                 Empresa e1 = (Empresa) this.utilizador; 
                 e1.adicionaFatura(fat); 
                 this.id++;
@@ -139,22 +141,36 @@ public class JavaFatura implements Serializable
         else throw new SemAutorizacaoException("Apenas empresas estão autorizadas a aceder.");
         }
     /* muda o estado de uma fatura */
-    public void setFatura(String NIF, String natDes) throws FaturaInexistenteException , SemAutorizacaoException , EstadoInvalidoException { 
+    public void setFatura(int id, Atividade natDes) throws FaturaInexistenteException , SemAutorizacaoException , EstadoInvalidoException { 
         
         if(this.utilizador.getClass().getSimpleName().equals("Individual")){ 
-            Fatura i = this.faturas.get(NIF); 
+            Fatura i = this.faturas.get(id); 
             if (i!=null){ 
                 i.setNatDes(natDes); 
             } else throw new EstadoInvalidoException("Fatura inválida.");
         } else throw new SemAutorizacaoException("Sem autorizacao para efetuar ação");
     }
 
+    public Fatura getFatura(int id) throws FaturaInexistenteException, SemAutorizacaoException{
+       if(id >= 0 && id < this.id){
+           Fatura f = this.faturas.get(id);
+             if(this.utilizador.getClass().getSimpleName().equals("Individual") && this.utilizador.getNIF().equals(f.getNIFc())) {return f;}
+             else throw new SemAutorizacaoException("Não pertence às suas faturas");
+        }
+       else throw new FaturaInexistenteException("Não existe essa fatura");
+        
+    }
+    
     public Utilizador getUtilizador(){ 
         return this.utilizador;
     }
 
     public int getId(){ 
         return this.id;
+    }
+    
+    public Utilizador getUtilizador(String NIF){
+        return this.utilizadores.get(NIF);
     }
     /* talvez mudar f.getConsultas() para f.getFaturas() ?? */
     public Set<String> getTopFaturas(int n){ 
@@ -168,6 +184,7 @@ public class JavaFatura implements Serializable
         return lista;
     }
     //Lista faturas empresa - bug faturas desaparecem as vezes
+    /*
     public Map <Fatura,Empresa> getMapeamentoFaturas() { 
         Map<Fatura,Empresa> faturas = new HashMap<Fatura,Empresa>(); 
         
@@ -186,12 +203,30 @@ public class JavaFatura implements Serializable
         }
         return faturas;
     }
+    */
     
-    public List<Fatura> getFaturas(String NIF){ 
+    public List<Fatura> getFaturasIndividual(String NIF){ 
         ArrayList<Fatura> f = new ArrayList<Fatura>(); 
         for(Fatura l: this.faturas.values()) { 
             //o get simple name so da o nome da classe ou seja isto nao interessa para nada porque n ha classe NIF  && l.getClass().getSimpleName().equals("Individual")
             if(l.getNIFc().equals(NIF)){ 
+                Fatura nova = (Fatura) l; 
+                /*                                              Esta merda ta a foder para caralho lol
+                GregorianCalendar data = new GregorianCalendar();                 
+                if(this.utilizador != null) l.adicionaConsulta( data);
+                else l.adicionaConsulta("N/A", "N/A", data); 
+                */
+                f.add(nova.clone());
+            }
+        }
+        return f;
+    }
+    
+    public List<Fatura> getFaturasEmpresa(String NIF){ 
+        ArrayList<Fatura> f = new ArrayList<Fatura>(); 
+        for(Fatura l: this.faturas.values()) { 
+            //o get simple name so da o nome da classe ou seja isto nao interessa para nada porque n ha classe NIF  && l.getClass().getSimpleName().equals("Individual")
+            if(l.getNIFe().equals(NIF)){ 
                 Fatura nova = (Fatura) l; 
                 /*                                              Esta merda ta a foder para caralho lol
                 GregorianCalendar data = new GregorianCalendar();                 
@@ -202,6 +237,15 @@ public class JavaFatura implements Serializable
             }
         }
         return f;
+    }
+    
+    public List<Fatura> getFaturasPorValor(String NIF){
+        List<Fatura> res = this.getFaturasEmpresa(NIF);
+    
+        res.sort(Comparator.comparingDouble(Fatura::getValDes));
+        
+        return res;
+         
     }
 
     /** grava o estado da applic num determinado ficheiro */

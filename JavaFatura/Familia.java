@@ -3,7 +3,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.stream.Collectors;
 
-public class Familia
+public class Familia extends Individual
 {
     private List<String> NIFS;
     private int agregado;

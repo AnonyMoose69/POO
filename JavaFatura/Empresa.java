@@ -7,17 +7,17 @@ import static java.util.stream.Collectors.toMap;
 public class Empresa extends Utilizador 
 {
    /* Lista das faturas da empresa */
-   private Map<String,Fatura> faturas;  
+   private Map<Integer,Fatura> faturas;  
    /* Atividade económica da empresa */
-   private String ativ; 
+   private Atividade ativ; 
    /* Informação sobre o fator da empresa na dedução fiscal */
    private String fator;
    
    public Empresa(){ 
        super("Empresa","","","","");  
-       this.ativ = "n/a"; 
+       this.ativ = new Atividade(); 
        this.fator = "n/a";
-       faturas = new HashMap<String,Fatura>();
+       faturas = new HashMap<Integer,Fatura>();
    }
 
    public Empresa (Empresa e){ 
@@ -25,19 +25,19 @@ public class Empresa extends Utilizador
        this.faturas = e.getFaturas();
    }
 
-   public Empresa(String NIF, String nome, String email, String morada, String password, String ativ, String fator, HashMap<String,Fatura> f){ 
+   public Empresa(String NIF, String nome, String email, String morada, String password, Atividade a, String fator, HashMap<Integer,Fatura> f){ 
        super(NIF,nome,email,morada,password); 
-       this.ativ = ativ; 
+       this.ativ = a.clone();
        this.fator = fator;
-       faturas = new HashMap<String,Fatura>(); 
+       faturas = new HashMap<Integer,Fatura>(); 
        if (f!=null)setFaturas(f);
    }
 
-   public Map<String,Fatura> getFaturas(){ 
+   public Map<Integer,Fatura> getFaturas(){ 
        return this.faturas.entrySet().stream().collect(toMap(e->e.getKey(), e->e.getValue().clone()));
    }
 
-   public void setFaturas(Map<String,Fatura> faturas){ 
+   public void setFaturas(Map<Integer,Fatura> faturas){ 
        this.faturas = faturas.entrySet().stream().collect(toMap(e->e.getKey(), e->e.getValue().clone()));        
    }
    
@@ -47,14 +47,14 @@ public class Empresa extends Utilizador
    }
    */
    
-  public String getAtiv(){ 
+  public Atividade getAtiv(){ 
        return this.ativ;
    }
    public String getFator(){ 
        return this.fator; 
    }
-   public void setAtiv(String ativ){ 
-       this.ativ = ativ;
+   public void setAtiv(Atividade ativ){ 
+       this.ativ = ativ.clone();
    }
    public void setFator(String fator){ 
        this.fator = fator;
@@ -74,7 +74,7 @@ public class Empresa extends Utilizador
    }
 
    public void adicionaFatura(Fatura f){ 
-       this.faturas.put(f.getNIFc(),f); 
+       this.faturas.put(f.getId(),f); 
        System.out.println(faturas.size());
    }
 }

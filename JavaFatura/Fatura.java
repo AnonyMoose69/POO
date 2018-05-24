@@ -20,11 +20,14 @@ public class Fatura implements Serializable
     /* Descrição da despesa */
     private String Desc;
     /* Natureza da Despesa - Código da atividade económica */
-    private String NatDes; 
+    private Atividade NatDes; 
     /* Valor da despesa */
-    private int ValDes;  
+    private double ValDes;  
     /* lista com consultas de cada fatura */
     private List<Consulta> consultas;  
+    /* identificador de uma fatura */
+    private int id;
+    private double deducao;
 
     public Fatura(){ 
         this.NIFe = "n/a"; 
@@ -32,9 +35,12 @@ public class Fatura implements Serializable
         this.Data = "n/a"; 
         this.NIFc = "n/a"; 
         this.Desc = "n/a"; 
-        this.NatDes = "n/a"; 
+        this.NatDes = new Atividade();
         this.ValDes = 0;
         this.consultas = new ArrayList<Consulta>();
+        this.id = -1;
+        this.deducao = 0;
+        
     }
 
     public Fatura(Fatura f){ 
@@ -50,15 +56,17 @@ public class Fatura implements Serializable
             Consulta consult = it.next(); 
             this.consultas.add(consult.clone());
         }
+        this.id = f.getId();
+        this.deducao = f.getDeducao();
     }
 
-    public Fatura(String NIFe, String DESIGe, String Data, String NIFc, String Desc, String NatDes, int ValDes, ArrayList<Consulta> cons){ 
+    public Fatura(String NIFe, String DESIGe, String Data, String NIFc, String Desc, Atividade NatDes, double ValDes, ArrayList<Consulta> cons, int id, double deducao){ 
         this.NIFe = NIFe; 
         this.DESIGe = DESIGe; 
         this.Data = Data; 
         this.NIFc = NIFc;
         this.Desc = Desc; 
-        this.NatDes = NatDes; 
+        this.NatDes = NatDes;
         this.ValDes = ValDes; 
         this.consultas = new ArrayList<Consulta>(); 
         Iterator<Consulta> it; 
@@ -69,6 +77,8 @@ public class Fatura implements Serializable
                 this.consultas.add(consult.clone());
             }
         }
+        this.id = id;
+        this.deducao = deducao;
     }
 
     public String getNIFe(){ 
@@ -86,11 +96,19 @@ public class Fatura implements Serializable
     public String getDesc(){ 
         return this.Desc;
     }
-    public String getNatDes(){ 
+    public Atividade getNatDes(){ 
         return this.NatDes;
     }
-    public int getValDes(){ 
+    public double getValDes(){ 
         return this.ValDes;
+    }
+    
+    public int getId(){
+        return this.id;
+    }
+    
+    public double getDeducao(){
+        return this.deducao;
     }
 
     public void setNIFe(String NIFe){ 
@@ -108,11 +126,19 @@ public class Fatura implements Serializable
     public void setDesc(String Desc){ 
         this.Desc = Desc;
     }
-    public void setNatDes(String NatDes){ 
+    public void setNatDes(Atividade NatDes){ 
         this.NatDes = NatDes;
     }
-    public void setValDes(int ValDes){ 
+    public void setValDes(double ValDes){ 
         this.ValDes= ValDes;
+    }
+    
+    public void setId(int id){
+        this.id = id;
+    }
+    
+    public void setDeducao(double deducao){
+        this.deducao = deducao;
     }
 
     /* Obtém consultas das faturas */
@@ -156,7 +182,7 @@ public class Fatura implements Serializable
         return f.getNIFe().equals(this.NIFe) && f.getDESIGe().equals(this.DESIGe) 
                && f.getData().equals(this.Data) && f.getNIFc().equals(this.NIFc) 
                && f.getDesc().equals(this.Desc) && f.getNatDes().equals(this.NatDes) 
-               && f.getValDes() == this.ValDes;
+               && f.getValDes() == this.ValDes && f.getId() == this.id && f.getDeducao() == this.deducao;
     }
 
     public String toString(){ 
@@ -174,9 +200,13 @@ public class Fatura implements Serializable
     str.append("Descrição da despesa: "); 
     str.append(this.Desc+"\n"); 
     str.append("Natureza da despesa: "); 
-    str.append(this.NatDes+"\n"); 
+    str.append(this.NatDes.toString()+"\n"); 
     str.append("Valor da despesa: "); 
     str.append(this.ValDes+"\n"); 
+    str.append("Id da fatura: ");
+    str.append(this.id+"\n");
+    str.append("Deducao: ");
+    str.append(this.deducao + "\n");
     str.append("**************************************\n");
     return str.toString();    
     }
