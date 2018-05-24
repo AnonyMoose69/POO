@@ -79,19 +79,23 @@ public class JavaFatura implements Serializable
     public void fechaSessao(){ 
         this.utilizador = null;
     }
-
-    public void registaFatura(Fatura fat) throws FaturaExisteException , SemAutorizacaoException{ 
+    
+        
+    //regista fatura a um dado utilizador mudar para Individual 
+    //lista das faturas do individual esta vazia porque vai tudo para empresa (MALLL!!)
+    //mudar NIFe para NIFc talvez?
+   public void registaFatura(Fatura fat) throws FaturaExisteException , SemAutorizacaoException{ 
         if(this.utilizador.getClass().getSimpleName().equals("Empresa")){ 
             if(this.faturas.containsValue(fat) == false){ 
-                this.faturas.put(fat.getNIFe(),fat); 
+                this.faturas.put(fat.getNIFc(),fat); 
                 Empresa e1 = (Empresa) this.utilizador; 
                 e1.adicionaFatura(fat); 
                 this.id++;
             } else throw new FaturaExisteException("Fatura já existe.");           
         }  else throw new SemAutorizacaoException("Apenas empresas estão autorizadas a passar faturas.");    
-    }
-
-    public List<Consulta> getConsultas() throws SemAutorizacaoException{ 
+   }
+                       
+   public List<Consulta> getConsultas() throws SemAutorizacaoException{ 
         int i = 0; 
         ArrayList<Consulta> lista = new ArrayList<Consulta>();
         if(this.utilizador.getClass().getSimpleName().equals("Individual")) { 
@@ -163,21 +167,21 @@ public class JavaFatura implements Serializable
         }    
         return lista;
     }
-    
-    public Map <Fatura,Individual> getMapeamentoFaturas() { 
-        Map<Fatura,Individual> faturas = new HashMap<Fatura,Individual>(); 
+    //Lista faturas empresa - bug faturas desaparecem as vezes
+    public Map <Fatura,Empresa> getMapeamentoFaturas() { 
+        Map<Fatura,Empresa> faturas = new HashMap<Fatura,Empresa>(); 
         
         for(Fatura f : this.faturas.values()){ 
             for(Utilizador util : this.utilizadores.values()){ 
-                if(util.getClass().getSimpleName().equals("Individual")){ 
-                    Individual e = (Individual) util; 
-                    if(e.getFatura().containsValue(f)){ 
-                        faturas.put(f,e); 
-                        break;
+                if(util.getClass().getSimpleName().equals("Empresa")){    
+                    if (this.utilizador.getNIF().equals(util.getNIF())){
+                            Empresa e = (Empresa) util; 
+                            if(e.getFaturas().containsValue(f)){ 
+                                faturas.put(f,e); 
+                                break;
+                        }
                     }
-                
-                }
-            
+                }            
             }
         }
         return faturas;

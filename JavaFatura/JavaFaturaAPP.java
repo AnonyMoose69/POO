@@ -16,7 +16,8 @@ public class JavaFaturaAPP
                         menu_empresa, menu_individual_registado, 
                         menu_empresa_registado, menu_cria_fatura, 
                         menu_acede_fatura, 
-                        menu_logado;
+                        menu_logado; 
+    private Utilizador utilizador;
     
     private JavaFaturaAPP() {} 
     
@@ -84,7 +85,8 @@ public class JavaFaturaAPP
         String[] menu3 = {"Aceder à fatura mais recente", 
                          "Classificar fatura por setor", 
                          "Aceder as faturas totais"};
-        String[] menu4 = {"Associar fatura"}; 
+        String[] menu4 = {"Associar fatura", 
+                         "Consulta Faturas"};
         String[] menu5 = {"Fatura Nova"};
                          
         
@@ -212,7 +214,9 @@ public class JavaFaturaAPP
             menu_empresa.executa(); 
             switch(menu_empresa.getOpcao()){  
                 case 1: adicionaFatura(); 
-                        break;             
+                        break;   
+                case 2: faturaIndividual(); 
+                        break;
             }
         }while(menu_empresa.getOpcao() != 0);    
     }
@@ -227,21 +231,23 @@ public class JavaFaturaAPP
     
         }while(menu_acede_fatura.getOpcao() != 0); 
     }
-    
+   
+   // devolve todas as faturas EMPRESA dado um NIF 
    private static void faturaIndividual(){ 
-        Map<Fatura,Individual> faturaIndividual = new TreeMap<Fatura,Individual>(); 
-        faturaIndividual = jafat.getMapeamentoFaturas(); 
-        for(Map.Entry<Fatura,Individual> entry : faturaIndividual.entrySet()){ 
+        Map<Fatura,Empresa> faturasEmpresa= new TreeMap<Fatura,Empresa>(); 
+        faturasEmpresa = jafat.getMapeamentoFaturas();  
+        
+        for(Map.Entry<Fatura,Empresa> entry : faturasEmpresa.entrySet()){ 
             Fatura f = entry.getKey(); 
-            Individual i = entry.getValue(); 
-            System.out.println("\n****************** Faturas *******************"); 
-            System.out.println(f); 
-            System.out.println(i); 
-            System.out.println("*************************************");
+            Empresa e = entry.getValue(); 
+            System.out.println("\n****************** Faturas *******************\n"); 
+            System.out.println(f);
+            System.out.println("************************************************\n");
         
         }
     
     }
+    
     /** Consulta faturas dado um determinado NIF */
    private static void consultarFaturas(){ 
         List<Consulta> lista = new ArrayList<Consulta>(); 
@@ -266,13 +272,13 @@ public class JavaFaturaAPP
         }
     }
     
-    /**adiciona fatura a JavaFatura*/
+    /*adiciona fatura a JavaFatura*/
    private static void adicionaFatura(){  
         Fatura fat = criaFatura(); 
         if(fat!=null){  
             try{  
-                jafat.registaFatura(fat);
-            }
+                jafat.registaFatura(fat);   
+            }                     
             catch(FaturaExisteException | SemAutorizacaoException e) {  
                 System.out.println(e.getMessage());
             }
@@ -289,7 +295,7 @@ public class JavaFaturaAPP
            String NIFe,desig,data,NIFc,desc,natDes; 
            int preco = 0; 
            System.out.print("\n************************************************************************************************************************\n");
-           System.out.print("\nNif emitente:  "); 
+           System.out.print("\nNIF emitente:  "); 
            NIFe = is.nextLine(); 
            System.out.print("\nNIF contribuinte:  "); 
            NIFc = is.nextLine(); 
@@ -309,7 +315,7 @@ public class JavaFaturaAPP
            }
            System.out.print("\n************************************************************************************************************************\n");
            fatura = new Fatura(NIFe,desig,data,NIFc,desc,natDes,preco,null);
-        }    
+       }    
        is.close(); 
        return fatura;
    }
@@ -328,13 +334,14 @@ public class JavaFaturaAPP
                   System.out.println(e.getMessage());
                 }
                 is.close();
-    }
-    
-    //consulta faturas do contribuinte com determinado NIF
+   }
+      
+   //consulta faturas do contribuinte com determinado NIF --- passar fatura f para dentro do alteraFatura e depois faz set dos correspondentes valores no setFatura
    private static void consultaFaturas(){ 
         Scanner is = new Scanner(System.in); 
         List<Fatura> lista = new ArrayList<Fatura>(); 
         String NIF; 
+        String in; 
         System.out.print("NIF do contribuinte: ");
         NIF = is.nextLine(); 
         
@@ -342,6 +349,11 @@ public class JavaFaturaAPP
         if(lista.isEmpty()) System.out.print("\nNão tem faturas associadas ao contribuinte!");
         for(Fatura f : lista) 
             System.out.println(f); 
+        System.out.print("\nFatura possui dados correctos? S/N"); 
+        in = is.nextLine(); 
+        if(in.equals("N")){ 
+                alteraFatura();
+        } else if (in.equals("S")) { System.out.print("Vai para o caralho"); }
         is.close();
     }
 }

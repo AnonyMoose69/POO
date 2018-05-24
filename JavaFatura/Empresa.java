@@ -1,5 +1,6 @@
 import java.util.Map; 
 import java.util.HashMap; 
+import java.util.List;
 import java.util.stream.Collectors; 
 import static java.util.stream.Collectors.toMap; 
 
@@ -39,8 +40,14 @@ public class Empresa extends Utilizador
    public void setFaturas(Map<String,Fatura> faturas){ 
        this.faturas = faturas.entrySet().stream().collect(toMap(e->e.getKey(), e->e.getValue().clone()));        
    }
- 
-   public String getAtiv(){ 
+   
+   /*
+   public List<Fatura> getFaturasNIF(String NIF){ 
+       return;
+   }
+   */
+   
+  public String getAtiv(){ 
        return this.ativ;
    }
    public String getFator(){ 
@@ -67,6 +74,7 @@ public class Empresa extends Utilizador
    }
 
    public void adicionaFatura(Fatura f){ 
-       this.faturas.put(f.getNIFe(),f);
+       this.faturas.put(f.getNIFc(),f); 
+       System.out.println(faturas.size());
    }
 }

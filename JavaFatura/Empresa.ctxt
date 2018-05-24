@@ -18,6 +18,7 @@ comment5.params=faturas
 comment5.target=void\ setFaturas(java.util.Map)
 comment6.params=
 comment6.target=java.lang.String\ getAtiv()
+comment6.text=\r\n\ \ \ public\ List<Fatura>\ getFaturasNIF(String\ NIF){\ \r\n\ \ \ \ \ \ \ return;\r\n\ \ \ }\r\n
 comment7.params=
 comment7.target=java.lang.String\ getFator()
 comment8.params=ativ

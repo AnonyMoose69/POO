@@ -41,7 +41,7 @@ public class Individual extends Utilizador
        this.Dependentes = Depend;
        this.faturas = new HashMap<String,Fatura>(); 
        if(f!=null)this.setFatura(f);
-    }
+   }
 
    public Map<String,Fatura> getFatura(){ 
        return this.faturas.entrySet().stream().collect(toMap(e->e.getKey(), e->e.getValue().clone()));
@@ -53,13 +53,13 @@ public class Individual extends Utilizador
    
    public String getNIFs(){ 
        return this.NIFs;
-    }
+   }
    public String getCodigosAtiv(){ 
        return this.CodigosAtiv;
-    }
+   }
    public int getCOEFiscal(){ 
        return this.COEFiscal;
-    }
+   }
    public int getDependentes(){ 
        return this.Dependentes;
    }
@@ -79,7 +79,7 @@ public class Individual extends Utilizador
    }
 
    public void adicionaFatura(Fatura f){ 
-       this.faturas.put(f.getNIFc(),f);
+       this.faturas.put(f.getNIFe(),f);
    }
 
    public void removeFatura(Fatura f){ 
@@ -88,14 +88,14 @@ public class Individual extends Utilizador
 
    public void setNIFs(String NIFs){ 
        this.NIFs = NIFs;
-    }
+   }
    public void setCodigosAtiv(String CodigosAtiv){ 
        this.CodigosAtiv = CodigosAtiv;
-    }
+   }
    public void setCOEFiscal(int CoeFiscal){ 
        this.COEFiscal = CoeFiscal;
-    } 
+   } 
    public void setDependentes(int Dependentes){ 
        this.Dependentes = Dependentes;
-    }
+   }
 }
