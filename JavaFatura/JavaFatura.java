@@ -162,15 +162,13 @@ public class JavaFatura implements Serializable
         else throw new SemAutorizacaoException("Apenas empresas estão autorizadas a aceder.");
         }
     /* muda o estado de uma fatura */
-    public void setFatura(int id, Atividade natDes) throws FaturaInexistenteException , SemAutorizacaoException , EstadoInvalidoException { 
+    public void setFatura(int id, Atividade natDes, LocalDateTime t) throws FaturaInexistenteException , SemAutorizacaoException , EstadoInvalidoException { 
         
         if(this.utilizador.getClass().getSimpleName().equals("Individual")){ 
             Fatura i = this.faturas.get(id); 
             if (i!=null){ 
-                if(!natDes.getAtiv().equals("")){
-                    i.setNatDes(natDes);  
-                    i.setValida(true);
-                }
+                i.setNatDes(natDes);  
+                i.setDataAlt(t);
             } else throw new EstadoInvalidoException("Fatura inválida.");
         } else throw new SemAutorizacaoException("Sem autorizacao para efetuar ação");
     }

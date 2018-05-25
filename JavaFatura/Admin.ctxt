@@ -1,15 +1,22 @@
 #BlueJ class context
 comment0.target=Admin
+comment0.text=\ \r\n\ Classe\ destinada\ a\ designar\ um\ admistrador\ do\ sistema\ \r\n\ \r\n\ @author\ Grupo\ 34\r\n
 comment1.params=
 comment1.target=Admin()
+comment1.text=\ \r\n\ Cria\ uma\ inst\u00E2ncia\ de\ um\ admistrador\r\n
 comment2.params=a
 comment2.target=Admin(Admin)
+comment2.text=\ \r\n\ Construtor\ por\ c\u00F3pia\ \r\n\ @param\ a\ \r\n
 comment3.params=NIF\ nome\ email\ morada\ password
 comment3.target=Admin(java.lang.String,\ java.lang.String,\ java.lang.String,\ java.lang.String,\ java.lang.String)
+comment3.text=\r\n\ Construtor\ por\ par\u00E2metro\ \r\n\ @param\ NIF\r\n\ @param\ nome\ \r\n\ @param\ email\ \r\n\ @param\ morada\ \r\n\ @param\ password\r\n
 comment4.params=
 comment4.target=Admin\ clone()
+comment4.text=\ \r\n\ Devolve\ uma\ c\u00F3pia\ do\ admistrador\ \r\n\ @return\ Admin\r\n
 comment5.params=obj
 comment5.target=boolean\ equals(java.lang.Object)
+comment5.text=\ \r\n\ Compara\ a\ igualdade\ com\ outro\ objeto\ \r\n\ @param\ obj\ \r\n\ @return\ boolean\r\n
 comment6.params=
 comment6.target=java.lang.String\ toString()
+comment6.text=\ \r\n\ Devolve\ os\ par\u00E2metros\ do\ admistrador\ na\ forma\ de\ String\ \r\n\ @return\ String\r\n
 numComments=7
