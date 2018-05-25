@@ -13,6 +13,7 @@ public class Atividade implements Serializable
    private boolean transporte;
    private boolean repveiculos;
    private boolean eletricidadeagua;
+   private boolean naoespecificado;
    
    public Atividade(){
        this.saude = false;
@@ -20,7 +21,8 @@ public class Atividade implements Serializable
        this.restauracao = false;
        this.transporte = false;
        this.repveiculos = false;
-       this.eletricidadeagua = false;
+       this.eletricidadeagua = false; 
+       this.naoespecificado = false;
     }
    
    public Atividade(Atividade a){
@@ -29,7 +31,8 @@ public class Atividade implements Serializable
        this.restauracao = a.getRestauracao();
        this.transporte = a.getTransportes();
        this.repveiculos = a.getVeiculos();
-       this.eletricidadeagua = a.getElet();
+       this.eletricidadeagua = a.getElet(); 
+       this.naoespecificado = a.getNEspecificado();
     }
    
    public boolean getSaude(){
@@ -56,14 +59,19 @@ public class Atividade implements Serializable
        return this.eletricidadeagua;
    }
    
+   public boolean getNEspecificado(){ 
+       return this.naoespecificado;
+   }
+   
    public void setBoolInfo(int n){
-       if (n>=1 && n<=6){
+       if (n>=1 && n<=7){
            if (n == 1) {this.saude = true; return;}
            if (n == 2) {this.educacao = true; return;}
            if (n == 3) {this.restauracao = true; return;}
            if (n == 4) {this.transporte = true; return;}
            if (n == 5) {this.repveiculos = true; return;}
            if (n == 6) {this.eletricidadeagua = true; return;}
+           if (n == 7) {this.naoespecificado = true; return;}
         }
        
     }
@@ -92,6 +100,10 @@ public class Atividade implements Serializable
        this.eletricidadeagua = elet;
    }
    
+   public void setNEspecificado(boolean nesp){ 
+       this.naoespecificado = nesp;
+   }
+   
    public boolean temAtividadeOuMaisQueUma(){
        int r = 0;
        if (this.saude) r++;
@@ -100,10 +112,11 @@ public class Atividade implements Serializable
        if (this.transporte) r++;
        if (this.repveiculos) r++;
        if (this.eletricidadeagua) r++;
+       if (this.naoespecificado) r++;
        
        return (r >= 2 || r == 0);
        
-    }
+   }
    public Atividade clone(){ 
        return new Atividade(this);
    }
@@ -120,13 +133,13 @@ public class Atividade implements Serializable
                                          && this.restauracao == a.getRestauracao()
                                          && this.transporte == a.getTransportes()
                                          && this.repveiculos == a.getVeiculos()
-                                         && this.eletricidadeagua == a.getElet();
+                                         && this.eletricidadeagua == a.getElet()
+                                         && this.naoespecificado == a.getNEspecificado();
    }
    
    public String toString(){ 
         StringBuilder str; 
-        str = new StringBuilder(); 
-        str.append("Atividades: "); 
+        str = new StringBuilder();          
         
         if(this.saude) str.append("\nSaude");
         if(this.educacao) str.append("\nEducacao");
@@ -134,6 +147,7 @@ public class Atividade implements Serializable
         if(this.transporte) str.append("\nTransporte");
         if(this.repveiculos) str.append("\nReparacao de veiculos");
         if(this.eletricidadeagua) str.append("\nEletricidade e agua");
+        if(this.naoespecificado) str.append("\nNão especificado");
         
         return str.append("\n").toString();
     }

@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.Iterator; 
 import java.util.HashSet; 
 import java.util.Map; 
+import java.util.stream.Collectors;
 import java.util.HashMap; 
 import java.util.ArrayList;
 import java.util.TreeMap; 
@@ -18,6 +19,7 @@ import java.io.FileInputStream;
 import java.io.ObjectInputStream; 
 import java.io.FileWriter; 
 import java.io.FileOutputStream;
+import java.time.LocalDateTime;
 
 public class JavaFatura implements Serializable
 {
@@ -141,12 +143,13 @@ public class JavaFatura implements Serializable
         else throw new SemAutorizacaoException("Apenas empresas estão autorizadas a aceder.");
         }
     /* muda o estado de uma fatura */
-    public void setFatura(int id, Atividade natDes) throws FaturaInexistenteException , SemAutorizacaoException , EstadoInvalidoException { 
+    public void setFatura(int id, Atividade natDes, LocalDateTime t) throws FaturaInexistenteException , SemAutorizacaoException , EstadoInvalidoException { 
         
         if(this.utilizador.getClass().getSimpleName().equals("Individual")){ 
             Fatura i = this.faturas.get(id); 
             if (i!=null){ 
-                i.setNatDes(natDes); 
+                i.setNatDes(natDes);  
+                i.setDataAlt(t);
             } else throw new EstadoInvalidoException("Fatura inválida.");
         } else throw new SemAutorizacaoException("Sem autorizacao para efetuar ação");
     }
@@ -247,7 +250,48 @@ public class JavaFatura implements Serializable
         return res;
          
     }
-
+    
+    public List<Fatura> getFaturasPorData(String NIF){ 
+        List<Fatura> res = this.getFaturasEmpresa(NIF); 
+        return res;
+    }
+    
+    public List<Fatura> getFaturasEmpDoContr(List<Fatura> l, String NIFc){
+        return l.stream().filter(f -> NIFc.equals(f.getNIFc())).collect(Collectors.toList());
+        
+    }
+    
+    public boolean existeCont(List<Fatura> l, String NIFc){
+        return l.stream().anyMatch(f -> NIFc.equals(f.getNIFc()));
+    }
+    
+    public List<Fatura> getFaturasPorContribuinte(String NIFe, String NIFc, LocalDateTime begin, LocalDateTime end) throws UtilizadorExistenteException, SemAutorizacaoException{
+        List<Fatura> fatemp = this.getFaturasPorData(NIFe);
+       
+        if(fatemp.size() !=0){
+            if(existeCont(fatemp, NIFc)){
+                List<Fatura> r = this.getFaturasEmpDoContr(fatemp, NIFc);
+        
+                return r.stream().filter(f -> f.getDataCr().isAfter(begin) && f.getDataCr().isBefore(end)).collect(Collectors.toList());
+            }
+            else  throw new UtilizadorExistenteException("Este utilizador individual não existe ou não tem faturas desta empresa!");
+        }
+        else throw new SemAutorizacaoException("Esta empresa não tem faturas associadas a si mesma!");
+    }
+    
+    public List<Fatura> getFaturasPorContribuinteOrdV(String NIFe, String NIFc) throws UtilizadorExistenteException, SemAutorizacaoException{
+        List<Fatura> fatemp = this.getFaturasPorValor(NIFe);
+       
+        if(fatemp.size() != 0){
+            if(existeCont(fatemp, NIFc)){
+                List<Fatura> r = this.getFaturasEmpDoContr(fatemp, NIFc);
+        
+                return r.stream().sorted(Comparator.comparing(Fatura::getValDes).reversed()).collect(Collectors.toList());
+            }
+            else  throw new UtilizadorExistenteException("Este utilizador individual não existe ou não tem faturas desta empresa!");
+        }
+        else throw new SemAutorizacaoException("Esta empresa não tem faturas associadas a si mesma!");
+    }
     /** grava o estado da applic num determinado ficheiro */
     public void gravaObj(String fich) throws IOException, FileNotFoundException { 
         FileOutputStream fos = new FileOutputStream(fich);
