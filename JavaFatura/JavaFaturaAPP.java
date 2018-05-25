@@ -16,13 +16,14 @@ public class JavaFaturaAPP
     private static Menu menu_principal,menu_registo,menu_individual, 
                         menu_empresa, menu_individual_registado, 
                         menu_empresa_registado, menu_cria_fatura, 
-                        menu_acede_fatura,  
+                        menu_acede_fatura, menu_admin,  
                         menu_logado; 
     private Utilizador utilizador;
     
     private JavaFaturaAPP() {} 
     
     public static void main(String[] args) {  
+        Utilizador user;
         String file_name = "fat_estado.txt"; 
         carregarMenus(); 
         initApp(file_name); 
@@ -55,7 +56,9 @@ public class JavaFaturaAPP
                   case 1: registo(); 
                           break; 
                   case 2: iniciarSessao(); 
-                          break;  
+                          break;   
+                  case 3: iniciarSessaoAd(); 
+                          break;
                   case 0: running = 0;
             }
         } 
@@ -64,13 +67,16 @@ public class JavaFaturaAPP
     
     private static void menu() {  
     
-    if(jafat.getUtilizador() == null) 
-       running_menu_individual(); 
-    else { 
-        Utilizador util = jafat.getUtilizador(); 
-        if(util.getClass().getSimpleName().equals("Empresa")) 
-            running_menu_empresa();
-        else running_menu_individual();
+        if(jafat.getUtilizador() == null) 
+        running_menu_individual(); 
+        else { 
+            Utilizador util = jafat.getUtilizador(); 
+            if(util.getClass().getSimpleName().equals("Empresa")) 
+                running_menu_empresa();
+                else {
+                    if(util.getClass().getSimpleName().equals("Individual")) running_menu_individual();
+                    else running_menu_admin();
+                }
         }
     } 
 
@@ -79,7 +85,8 @@ public class JavaFaturaAPP
         String[] menu0 = {"Menu", 
                          "Fechar sessão"}; 
         String[] menu1 = {"Registar Utilizador", 
-                         "Iniciar sessão", 
+                         "Iniciar sessão",  
+                         "Iniciar sessão como adminstrador"
                          };  
         String[] menu2 = {"Individual",  
                          "Empresa"}; 
@@ -93,13 +100,15 @@ public class JavaFaturaAPP
                          "Consultar faturas de um contribuinte ordenadas por valor"
                          };
         String[] menu5 = {"Fatura Nova"}; 
+        String[] menu6 = {"Fechar sessão"};
         
         menu_logado = new Menu(menu0);  
         menu_principal = new Menu(menu1); 
         menu_registo = new Menu(menu2);  
         menu_individual = new Menu(menu3); 
         menu_empresa = new Menu(menu4);  
-        menu_cria_fatura = new Menu(menu5);
+        menu_cria_fatura = new Menu(menu5); 
+        menu_admin = new Menu(menu6);
     }
   
     /** carrega o estado da aplicação desde a últiva vez que foi fechada. */
@@ -122,7 +131,9 @@ public class JavaFaturaAPP
 
     private static void registo() {   
         Utilizador user; 
-        Scanner is = new Scanner(System.in); 
+        Scanner is = new Scanner(System.in);  
+        
+        
         
         menu_registo.executa(); 
         if(menu_registo.getOpcao() != 0){ 
@@ -208,7 +219,24 @@ public class JavaFaturaAPP
         }
         is.close();
     }
-
+    
+       private static void iniciarSessaoAd() { 
+        Scanner is = new Scanner(System.in); 
+        String NIF,password; 
+        System.out.print("NIF: "); 
+        NIF = is.nextLine(); 
+        System.out.print("Password: "); 
+        password = is.nextLine(); 
+        
+        try{  
+            jafat.iniciaSessaoAdmin(NIF,password);
+        }
+        catch(SemAutorizacaoException e){  
+            System.out.println(e.getMessage());
+        }
+        is.close();
+    }
+    
     private static void fecharSessao(){ 
         jafat.fechaSessao();
     }
@@ -240,7 +268,8 @@ public class JavaFaturaAPP
                         break;
                 case 4: faturasEmpresaContIntervalo();
                         break;
-                case 5: faturasEmpresaContOrdVal();
+                case 5: faturasEmpresaContOrdVal(); 
+                        break;
             }
         }while(menu_empresa.getOpcao() != 0);    
     }
@@ -255,7 +284,17 @@ public class JavaFaturaAPP
     
         }while(menu_acede_fatura.getOpcao() != 0); 
    }
-      
+   
+   private static void running_menu_admin(){ 
+       do{ 
+           menu_admin.executa(); 
+           switch(menu_admin.getOpcao()){ 
+                       case 1: System.out.print("lol"); 
+                               break;
+            }
+        }while(menu_admin.getOpcao() != 0);
+   }
+   
    private static void faturaIndividual(){
        Scanner is = new Scanner(System.in);
       

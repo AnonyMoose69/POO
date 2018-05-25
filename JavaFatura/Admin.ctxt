@@ -1,0 +1,15 @@
+#BlueJ class context
+comment0.target=Admin
+comment1.params=
+comment1.target=Admin()
+comment2.params=a
+comment2.target=Admin(Admin)
+comment3.params=NIF\ nome\ email\ morada\ password
+comment3.target=Admin(java.lang.String,\ java.lang.String,\ java.lang.String,\ java.lang.String,\ java.lang.String)
+comment4.params=
+comment4.target=Admin\ clone()
+comment5.params=obj
+comment5.target=boolean\ equals(java.lang.Object)
+comment6.params=
+comment6.target=java.lang.String\ toString()
+numComments=7

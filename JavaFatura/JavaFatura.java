@@ -27,17 +27,19 @@ public class JavaFatura implements Serializable
     private Map<Integer,Fatura> faturas; 
     private Map<String,Utilizador> utilizadores; 
     private Utilizador utilizador; 
-    private int id;
+    private int id;  
+    private Admin adminstrador;
 
     public JavaFatura(){ 
         this.faturas = new TreeMap<Integer,Fatura>(); 
         this.utilizadores = new TreeMap<String,Utilizador>(); 
         this.utilizador = null; 
-        this.id = 0;
+        this.id = 0; 
+        this.adminstrador = new Admin("Grupo34","admin@javafatura.com","Adminstrador","Uminho","poo2018");
     }
 
     public JavaFatura(TreeMap<String,Utilizador> u, TreeMap<Integer,Fatura> i){ 
-        this.utilizador = null; 
+        this.utilizador = null;          
         
         this.faturas = new TreeMap<Integer,Fatura>(); 
         for(Fatura fatura : i.values()){ 
@@ -48,6 +50,8 @@ public class JavaFatura implements Serializable
         for(Utilizador utilizador : u.values()){  
             this.utilizadores.put(utilizador.getNIF(),utilizador.clone());
         }    
+        this.id = this.faturas.size();
+        this.adminstrador = new Admin("Grupo34","admin@javafatura.com","Adminstrador","Uminho","poo2018");
     }
 
     public void registarUtilizador (Utilizador utilizador) throws UtilizadorExistenteException{ 
@@ -79,6 +83,21 @@ public class JavaFatura implements Serializable
         }
     }
 
+    
+    public void iniciaSessaoAdmin(String NIF, String password) throws SemAutorizacaoException{ 
+        if(adminstrador.getNIF().equals(NIF)){ 
+                
+                if(password.equals(adminstrador.getPassword())) { 
+                    utilizador = this.adminstrador;
+                }
+                else {                 
+                    throw new SemAutorizacaoException("Dados Errados"); 
+                }
+            }
+            else throw new SemAutorizacaoException("Dados Errados");
+    } 
+    
+    
     public void fechaSessao(){ 
         this.utilizador = null;
     }
