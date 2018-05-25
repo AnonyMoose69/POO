@@ -3,6 +3,7 @@ import java.util.HashMap;
 import java.util.stream.Collectors;  
 import java.util.List; 
 import java.util.ArrayList;
+import java.util.Collection;
 import static java.util.stream.Collectors.toMap; 
 
 public class Individual extends Utilizador
@@ -98,4 +99,16 @@ public class Individual extends Utilizador
    public void setDependentes(int Dependentes){ 
        this.Dependentes = Dependentes;
    }
+   
+   public double getDeducaoTotal(){
+       Collection<Fatura> l = this.faturas.values();
+       Double res = 0.0;
+       
+       for(Fatura f : l){
+            
+            if(f.getValida()) res += f.getNatDes().getDeducao(f.getValDes());
+        }
+       
+       return res;
+    }
 }

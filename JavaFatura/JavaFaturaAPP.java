@@ -92,7 +92,9 @@ public class JavaFaturaAPP
                          "Empresa"}; 
         String[] menu3 = {"Aceder às faturas totais", 
                          "Classificar fatura por setor", 
-                         "Aceder a uma fatura"};
+                         "Aceder a uma fatura",
+                         "Dedução total"
+                        };
         String[] menu4 = {"Associar fatura", 
                          "Consultar faturas ordenada por valor", 
                          "Consultar faturas ordenada por data",
@@ -173,22 +175,22 @@ public class JavaFaturaAPP
                          INfat = is.nextLine(); 
                          System.out.print("Atividade Economica: \n 1-Saúde; 2-Educação; 3-Restauração; 4-Transportes; \n 5-Reparação de veículos; 6-Eletricidade e água; 7- Não especificado;\n"); 
                          INativ = is.nextInt();
-                         Atividade a = new Atividade();
-                         a.setBoolInfo(INativ);
-                         if (INativ<=6 && INativ >= 1) nativ = 1;
+                         List<String> atividades = new ArrayList<>();
+                         Atividade a = Atividade.fromInt(INativ);                     
+                         if (!a.getAtiv().equals("")) {nativ = 1; atividades.add(a.getAtiv());}
                          while(INativ<=6 && INativ >= 1 && nativ != 0 && nativ <= 6){
                              System.out.print("Deseja acrescentar mais alguma atividade económica à sua empresa? 1-Sim 2-Não \n");
                              INativ = is.nextInt();
                              if(INativ == 1){
                                  System.out.print("Atividade Economica: \n 1-Saúde; 2-Educação; 3-Restauração; 4-Transportes; \n 5-Reparação de veículos; 6-Eletricidade e água; 7- Outro;\n");
                                     INativ = is.nextInt();
-                                    if (INativ<=6 && INativ >= 1) nativ++;
-                                    a.setBoolInfo(INativ);
+                                    a = Atividade.fromInt(INativ);
+                                    if (!a.getAtiv().equals("")) {nativ++; atividades.add(a.getAtiv());}                           
                                 }
                              else break;
                             }
                          
-                         user = new Empresa(NIF,nome,email,morada,password,a,INfat,null);
+                         user = new Empresa(NIF,nome,email,morada,password,atividades,INfat,null);
                          break; 
                 default: user = new Empresa();
             }
@@ -250,6 +252,8 @@ public class JavaFaturaAPP
                 case 2: alteraFatura(); 
                         break; 
                 case 3: faturaIndividual(); 
+                        break;
+                case 4: deducaoTotal();
                         break;
             }        
         }while(menu_individual.getOpcao() != 0);
@@ -336,7 +340,13 @@ public class JavaFaturaAPP
            System.out.println("************************************************\n");
        }
    }
-    
+   
+   private static void deducaoTotal(){
+       
+       System.out.print("\n A sua dedução total é: " + (((Individual)jafat.getUtilizador()).getDeducaoTotal()));
+       
+       
+    }
    private static void faturasEmpresaContIntervalo(){
        Scanner is = new Scanner(System.in);
        int ano_inicio, ano_fim, mes_inicio, mes_fim, dia_inicio, dia_fim;
@@ -442,6 +452,7 @@ public class JavaFaturaAPP
    /** cria fatura para ser adicionada a Javafatura **/
    private static Fatura criaFatura(){  
        Fatura fatura = null; 
+       Atividade ativ;
        Scanner is = new Scanner(System.in); 
        
        menu_cria_fatura.executa();
@@ -460,12 +471,12 @@ public class JavaFaturaAPP
            data = LocalDateTime.now();
            
            Empresa emp = (Empresa) jafat.getUtilizador();
-           Atividade natDes = emp.getAtiv();
-           if(natDes.temAtividadeOuMaisQueUma()) {
-               System.out.print("\nTerá que validar a fatura futuramente (Mais que um setor de atividade ou nenhum)!\n");
-               natDes = new Atividade();
+           List<String> natDes = emp.getAtiv();
+           if(natDes.size() != 1) {
+               System.out.print("\nTerá que definir a atividade económica da fatura (Mais que um setor de atividade ou nenhum)!\n");
+               ativ = new Atividade();
             }
-           
+           else{ativ = Atividade.fromString(natDes.get(0));}
            
            System.out.print("\nValor da despesa:  "); 
            try{ 
@@ -474,7 +485,7 @@ public class JavaFaturaAPP
                System.out.println("Valor da despesa inválido!");                
            }
            System.out.print("\n************************************************************************************************************************\n");
-           fatura = new Fatura(jafat.getUtilizador().getNIF(),desig,data,NIFc,desc,natDes,preco,null,-1,0);
+           fatura = new Fatura(jafat.getUtilizador().getNIF(),desig,data,NIFc,desc,ativ,preco,null,-1,false);
        }    
        is.close(); 
        return fatura;
@@ -482,26 +493,19 @@ public class JavaFaturaAPP
 
    private static void alteraFatura(){ 
         int id, natDes; 
+        Atividade r;
         Scanner is = new Scanner(System.in); 
         System.out.print("ID da fatura: "); 
         id = is.nextInt(); 
         is.nextLine();
         System.out.print("Natureza da despesa nova: "); 
         System.out.print("\nAtividade Economica: \n 1-Saúde; 2-Educação; 3-Restauração; 4-Transportes; \n 5-Reparação de veículos; 6-Eletricidade e água; 7- Não especificado;\n");
-        natDes = is.nextInt(); 
-        System.out.print("\n!!! Atenção, Se escolher uma área de atividade que não pertence a empresa a fatura não irá ser alterada !!!\n");
-        Atividade r = new Atividade();
+        natDes = is.nextInt();
+        r = Atividade.fromInt(natDes);
         try {
             Fatura f = jafat.getFatura(id);
-            Empresa emp = (Empresa) jafat.getUtilizador(f.getNIFe());
-            Atividade a = emp.getAtiv();
-            if (natDes == 1 && (a.getSaude() || a.getNEspecificado())) r.setSaude(true);
-            if (natDes == 2 && (a.getEducacao() || a.getNEspecificado())) r.setEducacao(true);
-            if (natDes == 3 && (a.getRestauracao() || a.getNEspecificado())) r.setRestauracao(true);
-            if (natDes == 4 && (a.getTransportes() || a.getNEspecificado())) r.setTransportes(true);
-            if (natDes == 5 && (a.getVeiculos() || a.getNEspecificado())) r.setVeiculos(true);
-            if (natDes == 6 && (a.getElet() || a.getNEspecificado())) r.setElet(true);
-            jafat.setFatura(id, r,LocalDateTime.now());
+           
+            jafat.setFatura(id, r);
         }
          catch(FaturaInexistenteException | SemAutorizacaoException | 
               EstadoInvalidoException e) {  

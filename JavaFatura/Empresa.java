@@ -1,6 +1,7 @@
 import java.util.Map; 
 import java.util.HashMap; 
 import java.util.List;
+import java.util.ArrayList;
 import java.util.stream.Collectors; 
 import static java.util.stream.Collectors.toMap; 
 
@@ -9,13 +10,13 @@ public class Empresa extends Utilizador
    /* Lista das faturas da empresa */
    private Map<Integer,Fatura> faturas;  
    /* Atividade económica da empresa */
-   private Atividade ativ; 
+   private List<String> ativ; 
    /* Informação sobre o fator da empresa na dedução fiscal */
    private String fator;
    
    public Empresa(){ 
        super("Empresa","","","","");  
-       this.ativ = new Atividade(); 
+       this.ativ = new ArrayList<>();
        this.fator = "n/a";
        faturas = new HashMap<Integer,Fatura>();
    }
@@ -23,11 +24,17 @@ public class Empresa extends Utilizador
    public Empresa (Empresa e){ 
        super(e); 
        this.faturas = e.getFaturas();
+       this.ativ = e.getAtiv();
+       this.fator = e.getFator();
    }
 
-   public Empresa(String NIF, String nome, String email, String morada, String password, Atividade a, String fator, HashMap<Integer,Fatura> f){ 
+   public Empresa(String NIF, String nome, String email, String morada, String password, List<String> la, String fator, HashMap<Integer,Fatura> f){ 
        super(NIF,nome,email,morada,password); 
-       this.ativ = a.clone();
+       List<String> nova = new ArrayList<>();
+       for(String s : la){
+           nova.add(s);
+        }
+       this.ativ = nova;
        this.fator = fator;
        faturas = new HashMap<Integer,Fatura>(); 
        if (f!=null)setFaturas(f);
@@ -47,14 +54,22 @@ public class Empresa extends Utilizador
    }
    */
    
-  public Atividade getAtiv(){ 
-       return this.ativ;
+  public List<String> getAtiv(){ 
+       List<String> l = new ArrayList<>();
+       for(String s : this.ativ){
+           l.add(s);
+        }
+       return l;
    }
    public String getFator(){ 
        return this.fator; 
    }
-   public void setAtiv(Atividade ativ){ 
-       this.ativ = ativ.clone();
+   public void setAtiv(List<String> a){ 
+       List<String> l = new ArrayList<>();
+       for(String s : a){
+           l.add(s);
+        }
+       this.ativ = l;
    }
    public void setFator(String fator){ 
        this.fator = fator;

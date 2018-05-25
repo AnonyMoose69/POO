@@ -1,0 +1,8 @@
+#BlueJ class context
+comment0.target=Educacao
+comment0.text=\r\n\ Write\ a\ description\ of\ class\ Educacao\ here.\r\n\r\n\ @author\ (your\ name)\r\n\ @version\ (a\ version\ number\ or\ a\ date)\r\n
+comment1.params=
+comment1.target=Educacao()
+comment2.params=valor
+comment2.target=double\ getDeducao(double)
+numComments=3
