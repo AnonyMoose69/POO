@@ -1,9 +1,10 @@
 import java.util.List; 
 import java.util.ArrayList; 
-import java.util.Iterator; 
-import java.util.GregorianCalendar; 
-import java.util.List; 
+import java.util.Iterator;  
+import java.util.List;  
+import java.util.GregorianCalendar;
 import java.io.Serializable; 
+import java.time.LocalDateTime; 
 
 public class Fatura implements Serializable
 {
@@ -14,7 +15,9 @@ public class Fatura implements Serializable
     /* Designação do emitente */
     private String DESIGe; 
     /* Data da despesa */
-    private String Data; 
+    private  LocalDateTime DataCriada; 
+    /* Data da última alteração */
+    private LocalDateTime DataAlterada;
     /* NIF do contribuinte */
     private String NIFc; 
     /* Descrição da despesa */
@@ -27,12 +30,14 @@ public class Fatura implements Serializable
     private List<Consulta> consultas;  
     /* identificador de uma fatura */
     private int id;
+    /* dedução fiscal */
     private double deducao;
 
     public Fatura(){ 
         this.NIFe = "n/a"; 
         this.DESIGe = "n/a"; 
-        this.Data = "n/a"; 
+        this.DataCriada = LocalDateTime.now(); 
+        this.DataAlterada = LocalDateTime.now();
         this.NIFc = "n/a"; 
         this.Desc = "n/a"; 
         this.NatDes = new Atividade();
@@ -46,7 +51,8 @@ public class Fatura implements Serializable
     public Fatura(Fatura f){ 
         this.NIFe = f.getNIFe(); 
         this.DESIGe = f.getDESIGe(); 
-        this.Data = f.getData(); 
+        this.DataCriada = f.getDataCr(); 
+        this.DataAlterada = f.getDataAlt();
         this.NIFc = f.getNIFc(); 
         this.Desc = f.getDesc(); 
         this.NatDes = f.getNatDes(); 
@@ -60,10 +66,11 @@ public class Fatura implements Serializable
         this.deducao = f.getDeducao();
     }
 
-    public Fatura(String NIFe, String DESIGe, String Data, String NIFc, String Desc, Atividade NatDes, double ValDes, ArrayList<Consulta> cons, int id, double deducao){ 
+    public Fatura(String NIFe, String DESIGe, LocalDateTime Data, String NIFc, String Desc, Atividade NatDes, double ValDes, ArrayList<Consulta> cons, int id, double deducao){ 
         this.NIFe = NIFe; 
         this.DESIGe = DESIGe; 
-        this.Data = Data; 
+        this.DataCriada = Data; 
+        this.DataAlterada = Data;
         this.NIFc = NIFc;
         this.Desc = Desc; 
         this.NatDes = NatDes;
@@ -87,8 +94,11 @@ public class Fatura implements Serializable
     public String getDESIGe(){ 
         return this.DESIGe;
     }
-    public String getData(){ 
-        return this.Data;
+    public LocalDateTime getDataCr(){ 
+        return this.DataCriada;
+    }
+    public LocalDateTime getDataAlt(){ 
+        return this.DataAlterada;
     }
     public String getNIFc(){ 
         return this.NIFc;
@@ -117,9 +127,12 @@ public class Fatura implements Serializable
     public void setDESIGe(String DESIGe){ 
         this.DESIGe = DESIGe;
     }
-    public void setData(String Data){ 
-        this.Data = Data;
+    public void setDataCr(LocalDateTime Data){ 
+        this.DataCriada = Data;
     }
+    public void setDataAlt (LocalDateTime Data){ 
+        this.DataAlterada = Data;
+    }    
     public void setNIFc(String NIFc){ 
         this.NIFc = NIFc;
     }
@@ -180,7 +193,7 @@ public class Fatura implements Serializable
         }
         Fatura f = (Fatura) obj; 
         return f.getNIFe().equals(this.NIFe) && f.getDESIGe().equals(this.DESIGe) 
-               && f.getData().equals(this.Data) && f.getNIFc().equals(this.NIFc) 
+               && f.getDataCr().equals(this.DataCriada) && f.getDataAlt().equals(this.DataAlterada) && f.getNIFc().equals(this.NIFc) 
                && f.getDesc().equals(this.Desc) && f.getNatDes().equals(this.NatDes) 
                && f.getValDes() == this.ValDes && f.getId() == this.id && f.getDeducao() == this.deducao;
     }
@@ -193,8 +206,10 @@ public class Fatura implements Serializable
     str.append(this.NIFe+"\n"); 
     str.append("Designação do emitente: "); 
     str.append(this.DESIGe+"\n");  
-    str.append("Data da despesa: "); 
-    str.append(this.Data+"\n"); 
+    str.append("Data da despesa criada: "); 
+    str.append(this.DataCriada.toString()+"\n"); 
+    str.append("Data da última alteração: "); 
+    str.append(this.DataAlterada.toString()+"\n");
     str.append("NIF contribuinte: "); 
     str.append(this.NIFc+"\n"); 
     str.append("Descrição da despesa: "); 
