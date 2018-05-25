@@ -18,7 +18,6 @@ import java.io.FileInputStream;
 import java.io.ObjectInputStream; 
 import java.io.FileWriter; 
 import java.io.FileOutputStream;
-import java.time.LocalDateTime;
 
 public class JavaFatura implements Serializable
 {
@@ -142,13 +141,12 @@ public class JavaFatura implements Serializable
         else throw new SemAutorizacaoException("Apenas empresas estão autorizadas a aceder.");
         }
     /* muda o estado de uma fatura */
-    public void setFatura(int id, Atividade natDes, LocalDateTime t) throws FaturaInexistenteException , SemAutorizacaoException , EstadoInvalidoException { 
+    public void setFatura(int id, Atividade natDes) throws FaturaInexistenteException , SemAutorizacaoException , EstadoInvalidoException { 
         
         if(this.utilizador.getClass().getSimpleName().equals("Individual")){ 
             Fatura i = this.faturas.get(id); 
             if (i!=null){ 
-                i.setNatDes(natDes);  
-                i.setDataAlt(t);
+                i.setNatDes(natDes); 
             } else throw new EstadoInvalidoException("Fatura inválida.");
         } else throw new SemAutorizacaoException("Sem autorizacao para efetuar ação");
     }
@@ -249,12 +247,7 @@ public class JavaFatura implements Serializable
         return res;
          
     }
-    
-    public List<Fatura> getFaturasPorData(String NIF){ 
-        List<Fatura> res = this.getFaturasEmpresa(NIF); 
-        return res;
-    }
-    
+
     /** grava o estado da applic num determinado ficheiro */
     public void gravaObj(String fich) throws IOException, FileNotFoundException { 
         FileOutputStream fos = new FileOutputStream(fich);
