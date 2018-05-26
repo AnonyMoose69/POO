@@ -75,6 +75,9 @@ public class Empresa extends Utilizador
        this.fator = fator;
    }
  
+   public double getLucro(){
+       return this.faturas.values().stream().mapToDouble(Fatura::getValDes).sum();
+    }
    public Empresa clone(){ 
        return new Empresa(this);
    }

@@ -9,60 +9,73 @@ import static java.util.stream.Collectors.toMap;
 public class Individual extends Utilizador
 {
    /* Lista com todas as faturas associadas ao individuo */ 
-   private Map<Integer,Fatura> faturas; 
-   /* Números de identificação fiscal do agregado familiar */
-   private String NIFs; 
+   private List<Fatura> faturas; 
    /* Códigos da atividade económica */
-   private String CodigosAtiv;
-   /* Número de dependentes do agregado familiar */
-   private int Dependentes;
+   private List<Integer> CodigosAtiv;
    /* Coeficiente fiscal para efeitos de dedução */
-   private int COEFiscal; 
-   
+   private double COEFiscal; 
+   /* Se o utilizador se é dependente ou não */
+   private boolean depend; 
+   /* Guarda o id da familia */
+   private int idfam;
    
    public Individual(){ 
        super("Individual","","","",""); 
-       this.NIFs = "n/a";
-       this.CodigosAtiv = "n/a"; 
-       this.Dependentes = 0; 
+       this.CodigosAtiv = new ArrayList<>();
        this.COEFiscal = 0;
-       this.faturas = new HashMap<Integer,Fatura>();
+       this.faturas = new ArrayList<>(); 
+       this.depend = false;
+       this.idfam = -1;
    }
 
    public Individual(Individual i){ 
        super(i); 
-       this.faturas = i.getFatura();
-   }
+       this.faturas = i.getFatura(); 
+       this.COEFiscal = i.getCOEFiscal();
+       this.depend = i.getDepend();        
+       this.idfam = i.getIDfam();
+    }
 
-   public Individual(String NIF, String nome, String email, String morada, String password, String NIFs, String codigos, int Depend, int Coef, HashMap<Integer,Fatura> f){ 
-       super(NIF,nome,email,morada,password);
-       this.NIFs = NIFs;         
-       this.CodigosAtiv = codigos; 
+   public Individual(String NIF, String nome, String email, String morada, String password, List<Integer> codigos,double Coef, List<Fatura> f, boolean dep, int id){ 
+       super(NIF,nome,email,morada,password);         
+       this.CodigosAtiv = new ArrayList<Integer>(); 
+       for(Integer a : codigos){
+           this.CodigosAtiv.add(a);
+        }
        this.COEFiscal = Coef; 
-       this.Dependentes = Depend;
-       this.faturas = new HashMap<Integer,Fatura>(); 
+       this.faturas = new ArrayList<Fatura>(); 
+       this.depend = dep;
        if(f!=null)this.setFatura(f);
+       this.idfam = id;
+    }
+
+   public List<Fatura> getFatura(){ 
+       return this.faturas.stream().map(Fatura::clone).collect(Collectors.toList());
    }
 
-   public Map<Integer,Fatura> getFatura(){ 
-       return this.faturas.entrySet().stream().collect(toMap(e->e.getKey(), e->e.getValue().clone()));
-   }
-
-   public void setFatura(Map<Integer,Fatura> faturas){ 
-       this.faturas = faturas.entrySet().stream().collect(toMap(e->e.getKey(), e->e.getValue())); 
+   public void setFatura(List<Fatura> faturas){ 
+       this.faturas = faturas.stream().map(Fatura::clone).collect(Collectors.toList());
    }
    
-   public String getNIFs(){ 
-       return this.NIFs;
+   public List<Integer> getCodigosAtiv(){ 
+       List<Integer> codigos = new ArrayList<Integer>();
+       for(Integer a : this.CodigosAtiv){
+           codigos.add(a);
+        }
+       
+       return codigos;
    }
-   public String getCodigosAtiv(){ 
-       return this.CodigosAtiv;
-   }
-   public int getCOEFiscal(){ 
+   
+   public double getCOEFiscal(){ 
        return this.COEFiscal;
    }
-   public int getDependentes(){ 
-       return this.Dependentes;
+   
+   public boolean getDepend(){
+       return this.depend;
+    }
+   
+   public int getIDfam(){ 
+       return this.idfam;
    }
    
    public Individual clone(){ 
@@ -78,37 +91,57 @@ public class Individual extends Utilizador
        Individual i = (Individual) obj; 
         return (super.equals(i));
    }
+   
 
+    
    public void adicionaFatura(Fatura f){ 
-       this.faturas.put(f.getId(),f);
+       this.faturas.add(f);
    }
 
    public void removeFatura(Fatura f){ 
        this.faturas.remove(f);
    }
 
-   public void setNIFs(String NIFs){ 
-       this.NIFs = NIFs;
+   public void setCodigosAtiv(List<Integer> codigos){ 
+       for(Integer a : codigos){
+           this.CodigosAtiv.add(a);
+        }
+       
    }
-   public void setCodigosAtiv(String CodigosAtiv){ 
-       this.CodigosAtiv = CodigosAtiv;
-   }
-   public void setCOEFiscal(int CoeFiscal){ 
+   public void setCOEFiscal(double CoeFiscal){ 
        this.COEFiscal = CoeFiscal;
    } 
-   public void setDependentes(int Dependentes){ 
-       this.Dependentes = Dependentes;
-   }
    
-   public double getDeducaoTotal(){
-       Collection<Fatura> l = this.faturas.values();
+   public void setDepend(boolean t){
+       this.depend = t;
+   }
+    
+   public void setIDfam(int id){ 
+       this.idfam = id;
+   }
+    
+   public boolean pertenceAtiv(String s){
+       for(Integer i : this.CodigosAtiv){
+           if (Atividade.fromInt(i).getAtiv().equals(s)) return true;
+        }
+       return false;
+   }
+
+   public double getValDesTotal(){
+       return this.faturas.stream().mapToDouble(Fatura::getValDes).sum();
+   }
+    
+   public double getDeducaoTotal(double coeficienteFam){
+       List<Fatura> l = this.faturas;
        Double res = 0.0;
        
        for(Fatura f : l){
-            
-            if(f.getValida()) res += f.getNatDes().getDeducao(f.getValDes());
+            Atividade a = f.getNatDes();
+            String s = a.getAtiv();
+            if(f.getValida() && this.pertenceAtiv(s)) res += (Atividade.fromString(s).getDeducao(f.getValDes())) + (f.getValDes() * this.COEFiscal);
+            if(f.getValida()) res += f.getValDes() * coeficienteFam;
         }
        
        return res;
-    }
+   }
 }

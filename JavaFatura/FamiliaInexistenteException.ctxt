@@ -1,0 +1,5 @@
+#BlueJ class context
+comment0.target=FamiliaInexistenteException
+comment1.params=msg
+comment1.target=FamiliaInexistenteException(java.lang.String)
+numComments=2

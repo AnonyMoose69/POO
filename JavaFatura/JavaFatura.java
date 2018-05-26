@@ -24,21 +24,25 @@ import java.time.LocalDateTime;
 public class JavaFatura implements Serializable
 {
     //Variaveis de instancia 
-    private Map<Integer,Fatura> faturas; 
-    private Map<String,Utilizador> utilizadores; 
+    private Map<Integer,Fatura> faturas;
+    private Map<String,Utilizador> utilizadores;
+    private Map<Integer, Familia> familias;
     private Utilizador utilizador; 
-    private int id;  
-    private Admin adminstrador;
+    private int id;
+    private int idfam;
+    private Admin adminstrador; 
 
     public JavaFatura(){ 
         this.faturas = new TreeMap<Integer,Fatura>(); 
         this.utilizadores = new TreeMap<String,Utilizador>(); 
+        this.familias = new TreeMap<Integer,Familia>();
         this.utilizador = null; 
+        this.idfam = 0;
         this.id = 0; 
         this.adminstrador = new Admin("Grupo34","admin@javafatura.com","Adminstrador","Uminho","poo2018");
     }
 
-    public JavaFatura(TreeMap<String,Utilizador> u, TreeMap<Integer,Fatura> i){ 
+    public JavaFatura(TreeMap<String,Utilizador> u, TreeMap<Integer,Fatura> i, TreeMap<Integer,Familia> f){ 
         this.utilizador = null;          
         
         this.faturas = new TreeMap<Integer,Fatura>(); 
@@ -51,17 +55,55 @@ public class JavaFatura implements Serializable
             this.utilizadores.put(utilizador.getNIF(),utilizador.clone());
         }    
         this.id = this.faturas.size();
+        this.familias = new TreeMap<Integer,Familia>();
+        for(Familia familia : f.values()){
+            this.familias.put(familia.getId(),familia.clone());
+        }
         this.adminstrador = new Admin("Grupo34","admin@javafatura.com","Adminstrador","Uminho","poo2018");
     }
 
-    public void registarUtilizador (Utilizador utilizador) throws UtilizadorExistenteException{ 
+    public void registarIndividual(Utilizador utilizador, int idfam) throws UtilizadorExistenteException, FamiliaInexistenteException {
+            Familia f = new Familia();
+            
+            if (idfam == -1) {
+                List<String> fam = new ArrayList<String>();
+                int dep;
+                fam.add(utilizador.getNIF());
+            
+                if(((Individual) utilizador).getDepend()) dep = 1; else dep = 0;
+            
+                f = new Familia(fam, dep, this.idfam++);
+                ((Individual) utilizador).setIDfam(this.idfam-1);
+            }
+            else {
+                if(this.familias.containsKey(idfam)) {this.familias.get(idfam).adicionaMembro(utilizador.getNIF(), ((Individual) utilizador).getDepend());}
+                else {throw new FamiliaInexistenteException("Não existe família com esse id");}
+                
+                }
+            
+            if(this.utilizadores.containsKey(utilizador.getNIF())){ 
+                throw new UtilizadorExistenteException ("Já existe este utilizador");
+            }
+            else { 
+                this.utilizadores.put(utilizador.getNIF(),utilizador);
+                if (idfam == -1) this.familias.put(this.idfam-1, f);
+            }
+    }
     
+    public void registarEmpresa(Utilizador utilizador) throws UtilizadorExistenteException{
         if(this.utilizadores.containsKey(utilizador.getNIF())){ 
             throw new UtilizadorExistenteException ("Já existe este utilizador");
         }
         else { 
             this.utilizadores.put(utilizador.getNIF(),utilizador);
         }
+    }
+    
+    
+    public void registarUtilizador (Utilizador utilizador, int idfam) throws UtilizadorExistenteException, FamiliaInexistenteException{ 
+        if(utilizador.getClass().getSimpleName().equals("Individual")) registarIndividual(utilizador, idfam);
+        else registarEmpresa(utilizador);
+        
     }
 
     public void iniciaSessao(String NIF, String password) throws SemAutorizacaoException{ 
@@ -102,65 +144,31 @@ public class JavaFatura implements Serializable
         this.utilizador = null;
     }
     
+    public Utilizador getContribuinte(String NIFc) throws UtilizadorExistenteException{
+        if(this.utilizadores.containsKey(NIFc)){
+            return this.utilizadores.get(NIFc);
+        }
+        else throw new UtilizadorExistenteException("Não existe o contribuinte");
+    }
         
     //regista fatura a um dado utilizador mudar para Individual 
     //lista das faturas do individual esta vazia porque vai tudo para empresa (MALLL!!)
     //mudar NIFe para NIFc talvez?
-   public void registaFatura(Fatura fat) throws FaturaExisteException , SemAutorizacaoException{ 
+   public void registaFatura(Fatura fat) throws FaturaExisteException , SemAutorizacaoException, UtilizadorExistenteException{ 
         if(this.utilizador.getClass().getSimpleName().equals("Empresa")){ 
-            if(this.faturas.containsValue(fat) == false){ 
+            if(this.faturas.containsValue(fat) == false && existeUtilizadorNIF(fat.getNIFc())){ 
                 fat.setId(this.id);
                 this.faturas.put(this.id,fat);
                 Empresa e1 = (Empresa) this.utilizador; 
                 e1.adicionaFatura(fat); 
                 this.id++;
-            } else throw new FaturaExisteException("Fatura já existe.");           
+                Individual ind = (Individual) this.getContribuinte(fat.getNIFc());
+                ind.adicionaFatura(fat);
+            } else throw new FaturaExisteException("Fatura já existe ou contribuinte inválido");           
         }  else throw new SemAutorizacaoException("Apenas empresas estão autorizadas a passar faturas.");    
    }
                        
-   public List<Consulta> getConsultas() throws SemAutorizacaoException{ 
-        int i = 0; 
-        ArrayList<Consulta> lista = new ArrayList<Consulta>();
-        if(this.utilizador.getClass().getSimpleName().equals("Individual")) { 
-               
-                Individual iv = (Individual) this.utilizador; 
-                System.out.print(iv.getFatura().toString());                
-                
-                for(Fatura fat: iv.getFatura().values()){ 
-                   Iterator<Consulta> it; 
-                   it = fat.getConsultas().iterator();
-                   while(it.hasNext()){ 
-                       Consulta consult = it.next(); 
-                       lista.add(consult.clone());
-                   }
-                }
-               Collections.sort(lista, new ComparatorData()); 
-               if(lista.size() <= 10) return lista;
-               else {  
-                   ArrayList<Consulta> lista_final = new ArrayList<Consulta>(lista.subList(0,11));
-                   return lista_final;
-                } 
-               
-            }    
-        else if(this.utilizador.getClass().getSimpleName().equals("Empresa")) { 
-               Empresa e = (Empresa) this.utilizador; 
-               for(Fatura fat: e.getFaturas().values()){ 
-                   Iterator<Consulta> it; 
-                   it = fat.getConsultas().iterator();
-                   while(it.hasNext()){ 
-                       Consulta consult = it.next(); 
-                       lista.add(consult.clone());
-                   }
-                }
-               Collections.sort(lista, new ComparatorData()); 
-               if(lista.size() <= 10) return lista; 
-               else {  
-                   ArrayList<Consulta> lista_final = new ArrayList<Consulta>(lista.subList(0,11));
-                   return lista_final;
-                }
-            } 
-        else throw new SemAutorizacaoException("Apenas empresas estão autorizadas a aceder.");
-        }
+  
     /* muda o estado de uma fatura */
     public void setFatura(int id, Atividade natDes) throws FaturaInexistenteException , SemAutorizacaoException , EstadoInvalidoException { 
         
@@ -196,50 +204,16 @@ public class JavaFatura implements Serializable
     public Utilizador getUtilizador(String NIF){
         return this.utilizadores.get(NIF);
     }
-    /* talvez mudar f.getConsultas() para f.getFaturas() ?? */
-    public Set<String> getTopFaturas(int n){ 
-        Set<String> lista = new HashSet<String>(); 
-        Empresa e = (Empresa) this.utilizador; 
-        for(Fatura f : e.getFaturas().values()){ 
-            if(n < f.getConsultas().size()){ 
-                lista.add(f.getNIFc());
-            }
-        }    
-        return lista;
-    }
-    //Lista faturas empresa - bug faturas desaparecem as vezes
-    /*
-    public Map <Fatura,Empresa> getMapeamentoFaturas() { 
-        Map<Fatura,Empresa> faturas = new HashMap<Fatura,Empresa>(); 
-        
-        for(Fatura f : this.faturas.values()){ 
-            for(Utilizador util : this.utilizadores.values()){ 
-                if(util.getClass().getSimpleName().equals("Empresa")){    
-                    if (this.utilizador.getNIF().equals(util.getNIF())){
-                            Empresa e = (Empresa) util; 
-                            if(e.getFaturas().containsValue(f)){ 
-                                faturas.put(f,e); 
-                                break;
-                        }
-                    }
-                }            
-            }
-        }
-        return faturas;
-    }
-    */
     
+    public Familia getFamilia(int id){
+        return this.familias.get(id);
+    }
+
     public List<Fatura> getFaturasIndividual(String NIF){ 
         ArrayList<Fatura> f = new ArrayList<Fatura>(); 
-        for(Fatura l: this.faturas.values()) { 
-            //o get simple name so da o nome da classe ou seja isto nao interessa para nada porque n ha classe NIF  && l.getClass().getSimpleName().equals("Individual")
+        for(Fatura l: this.faturas.values()) {        
             if(l.getNIFc().equals(NIF)){ 
-                Fatura nova = (Fatura) l; 
-                /*                                              Esta merda ta a foder para caralho lol
-                GregorianCalendar data = new GregorianCalendar();                 
-                if(this.utilizador != null) l.adicionaConsulta( data);
-                else l.adicionaConsulta("N/A", "N/A", data); 
-                */
+                Fatura nova = (Fatura) l;              
                 f.add(nova.clone());
             }
         }
@@ -249,14 +223,8 @@ public class JavaFatura implements Serializable
     public List<Fatura> getFaturasEmpresa(String NIF){ 
         ArrayList<Fatura> f = new ArrayList<Fatura>(); 
         for(Fatura l: this.faturas.values()) { 
-            //o get simple name so da o nome da classe ou seja isto nao interessa para nada porque n ha classe NIF  && l.getClass().getSimpleName().equals("Individual")
             if(l.getNIFe().equals(NIF)){ 
                 Fatura nova = (Fatura) l; 
-                /*                                              Esta merda ta a foder para caralho lol
-                GregorianCalendar data = new GregorianCalendar();                 
-                if(this.utilizador != null) l.adicionaConsulta(l.getNIFe(),l.getNIFc(), data);
-                else l.adicionaConsulta("N/A", "N/A", data); 
-                */
                 f.add(nova.clone());
             }
         }
@@ -284,6 +252,59 @@ public class JavaFatura implements Serializable
     
     public boolean existeCont(List<Fatura> l, String NIFc){
         return l.stream().anyMatch(f -> NIFc.equals(f.getNIFc()));
+    }
+    
+    public boolean existeUtilizadorNIF(String NIF){ 
+        return this.utilizadores.values().stream().anyMatch(a -> NIF.equals(a.getNIF()));
+    }
+    public double getLucroEmp(){
+        Empresa emp = (Empresa) this.getUtilizador();
+        
+        return emp.getLucro();
+    }
+    
+    public List<Individual> getTop10Util(){
+        List<Individual> total = new ArrayList<Individual>();
+        for(Utilizador u : this.utilizadores.values()){
+            if(this.utilizador.getClass().getSimpleName().equals("Individual")) total.add((Individual) u);
+        }
+        
+        List<Individual> res = total.stream().sorted(Comparator.comparing(Individual::getValDesTotal).reversed()).collect(Collectors.toList());
+        
+        if(res.size()<=10) return res;
+        else{
+            List<Individual> resu = new ArrayList<Individual>();
+            for(int i = 0; i < 10; i++){
+                resu.add(res.get(i));
+            }
+            
+            return resu;
+        }
+    }
+    
+    public double getDeducaoAgregado(){
+        int idf = ((Individual)this.utilizador).getIDfam();
+        double coefFam = this.familias.get(idf).getCoefFamilia();
+        double res = 0.0;
+        List<String> f = this.familias.get(idf).getNIFS();
+        
+        for(String s : f){
+            Individual i = (Individual) this.utilizadores.get(s);
+            res += i.getDeducaoTotal(coefFam);
+        }
+        
+        return res;
+    }
+    
+    public List<Fatura> getFaturasFamilia(){
+        int idf = ((Individual)this.utilizador).getIDfam();
+        List<String> f = this.familias.get(idf).getNIFS();
+        List<Fatura> res = new ArrayList<Fatura>();
+        for(String s : f){
+            res.addAll(this.getFaturasIndividual(s));
+        }
+        
+        return res;
     }
     
     public List<Fatura> getFaturasPorContribuinte(String NIFe, String NIFc, LocalDateTime begin, LocalDateTime end) throws UtilizadorExistenteException, SemAutorizacaoException{

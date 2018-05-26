@@ -17,18 +17,16 @@ public class Fatura implements Serializable
     private String DESIGe; 
     /* Data da despesa */
     private LocalDateTime DataCriada; 
-    /* Data da última alteração */
+    /* Data das últimas alteração */
     private List<LocalDateTime> DataAlterada;
     /* NIF do contribuinte */
     private String NIFc; 
     /* Descrição da despesa */
     private String Desc;
-    /* Natureza da Despesa - Código da atividade económica */
+    /* Lista das atividades  */
     private List<Atividade> NatDes; 
     /* Valor da despesa */
     private double ValDes;  
-    /* lista com consultas de cada fatura */
-    private List<Consulta> consultas;  
     /* identificador de uma fatura */
     private int id;
     /* booleano de fatura válida */
@@ -43,7 +41,6 @@ public class Fatura implements Serializable
         this.Desc = "n/a"; 
         this.NatDes = new ArrayList<>();
         this.ValDes = 0;
-        this.consultas = new ArrayList<Consulta>();
         this.id = -1;
         this.valida = false;
     }
@@ -57,16 +54,11 @@ public class Fatura implements Serializable
         this.Desc = f.getDesc(); 
         this.NatDes = f.getNatDesList(); 
         this.ValDes = f.getValDes(); 
-        Iterator<Consulta> it = f.consultas.iterator(); 
-        while(it.hasNext()){ 
-            Consulta consult = it.next(); 
-            this.consultas.add(consult.clone());
-        }
         this.id = f.getId();
         this.valida = f.getValida();
     }
 
-    public Fatura(String NIFe, String DESIGe, LocalDateTime Data, String NIFc, String Desc, Atividade NatDes, double ValDes, ArrayList<Consulta> cons, int id, boolean valida){ 
+    public Fatura(String NIFe, String DESIGe, LocalDateTime Data, String NIFc, String Desc, Atividade NatDes, double ValDes, int id, boolean valida){ 
         this.NIFe = NIFe; 
         this.DESIGe = DESIGe; 
         this.DataCriada = Data; 
@@ -76,15 +68,6 @@ public class Fatura implements Serializable
         this.NatDes = new ArrayList<>();
         this.setNatDes(NatDes);
         this.ValDes = ValDes; 
-        this.consultas = new ArrayList<Consulta>(); 
-        Iterator<Consulta> it; 
-        if(cons!=null){ 
-            it = cons.iterator(); 
-            while(it.hasNext()){ 
-                Consulta consult = it.next(); 
-                this.consultas.add(consult.clone());
-            }
-        }
         this.id = id;
         this.valida = valida;
     }
@@ -181,31 +164,6 @@ public class Fatura implements Serializable
         this.valida = valida;
     }
 
-    /* Obtém consultas das faturas */
-    public ArrayList<Consulta> getConsultas(){ 
-        ArrayList<Consulta> novo = new ArrayList<Consulta>(); 
-        Iterator<Consulta> it = this.consultas.iterator(); 
-        while(it.hasNext()){ 
-            Consulta consult = it.next(); 
-            novo.add(consult.clone());
-        }
-        return novo;
-    }
-
-    /* Define as consultas de uma fatura */
-    public void setConsultas(ArrayList<Consulta> lista){ 
-        Iterator<Consulta> it = lista.iterator(); 
-        while(it.hasNext()){ 
-            Consulta consult = it.next(); 
-            this.consultas.add(consult.clone());
-        }
-    }
-
-    /* Adiciona uma consulta a uma lista de consultas de uma fatura */ 
-    public void adicionaConsulta(String NIFe, String NIFc, GregorianCalendar data){ 
-        Consulta nova = new Consulta(NIFe,NIFc,data); 
-        this.consultas.add(nova);
-    }
 
     public Fatura clone(){ 
         return new Fatura(this);

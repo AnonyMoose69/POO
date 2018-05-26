@@ -93,16 +93,20 @@ public class JavaFaturaAPP
         String[] menu3 = {"Aceder às faturas totais", 
                          "Classificar fatura por setor", 
                          "Aceder a uma fatura",
-                         "Dedução total"
+                         "Visualizar a família",
+                         "Dedução total do individuo",
+                         "Dedução total do agregado familiar",
+                         "Aceder às faturas totais do agregado familiar"
                         };
         String[] menu4 = {"Associar fatura", 
                          "Consultar faturas ordenada por valor", 
                          "Consultar faturas ordenada por data",
                          "Consultar faturas de um contribuinte no intervalo de tempo pretendido",
-                         "Consultar faturas de um contribuinte ordenadas por valor"
+                         "Consultar faturas de um contribuinte ordenadas por valor decrescente",
+                         "Lucro da Empresa"
                          };
         String[] menu5 = {"Fatura Nova"}; 
-        String[] menu6 = {"Fechar sessão"};
+        String[] menu6 = {"Top 10 contribuidores que mais gastam no sistema"};
         
         menu_logado = new Menu(menu0);  
         menu_principal = new Menu(menu1); 
@@ -140,13 +144,18 @@ public class JavaFaturaAPP
         menu_registo.executa(); 
         if(menu_registo.getOpcao() != 0){ 
                    /** referências em comum */
-                   String  NIF,email,nome,morada,password,
+                   String  NIF,email,nome,morada,password;
                    /** referente ao individual */
-                   NIFagregado, ativEco, 
+                   double COEFiscal = -1.0;
+                   int atividade, dependInt;
+                   boolean depend;
                    /** referente as empresas */
-                   INfat;
-                   int COEFiscal, agregado, INativ, nativ;
+                   String INfat;
+                   int agregado, INativ, nativ;
                    nativ = 0;
+                   /** referente as famílias */
+                   int familia = 0;
+
                    
             System.out.print("NIF: "); 
             NIF = is.nextLine(); 
@@ -160,16 +169,42 @@ public class JavaFaturaAPP
             password = is.nextLine(); 
             
             switch(menu_registo.getOpcao()){  
-                case 1:  System.out.print("Agregado: "); 
-                         agregado = is.nextInt(); 
-                         System.out.print("Coeficiente fiscal: "); 
-                         COEFiscal = is.nextInt(); 
-                         System.out.print("NIF Agregado: "); 
-                         is.nextLine();
-                         NIFagregado = is.nextLine();                                                    
-                         System.out.print("Atividade económica: ");
-                         ativEco = is.nextLine(); 
-                         user = new Individual(NIF,nome,email,morada,password,NIFagregado,ativEco,agregado,COEFiscal,null);
+                case 1:
+
+                         while(COEFiscal < 0 || COEFiscal > 1){
+                                System.out.print("Coeficiente fiscal (entre 0 e 1): "); 
+                                COEFiscal = is.nextDouble(); 
+                            }
+                         System.out.print("É dependente? 1-Sim 2-Não \n"); 
+                         dependInt = is.nextInt(); 
+                         if(dependInt == 1) depend=true; 
+                         else depend=false;
+                         System.out.print("Atividade Economica: \n 1-Saúde; 2-Educação; 3-Restauração; 4-Transportes; \n 5-Reparação de veículos; 6-Eletricidade e água; 7- Não especificado;\n");
+                         atividade = is.nextInt(); 
+                         List<Integer> atividadesInd = new ArrayList<Integer>();
+                         if (atividade >= 1 && atividade <= 6) atividadesInd.add(atividade);
+                         while(atividadesInd.size() > 0 && atividadesInd.size() <= 6){
+                             System.out.print("Deseja acrescentar mais alguma atividade económica ao seu perfil? 1-Sim 2-Não \n");
+                             atividade = is.nextInt();
+                             if(atividade == 1){
+                                 System.out.print("Atividade Economica: \n 1-Saúde; 2-Educação; 3-Restauração; 4-Transportes; \n 5-Reparação de veículos; 6-Eletricidade e água; 7- Outro;\n");
+                                 atividade = is.nextInt();
+                                 if (atividade >= 1 && atividade <= 6) atividadesInd.add(atividade);
+                                }
+                             else break;
+                            }
+                         System.out.print("Pretende-se associar a uma familia existente? 1-Sim 2-Não");
+                         familia = is.nextInt();
+                         if (familia == 1){
+                             System.out.print("Id da família: ");
+                             familia = is.nextInt();
+                            }
+                         else {
+                             System.out.print("Irá ser criada uma nova família (inicialmente vazia)!");
+                             familia = -1;
+                            }
+                         
+                         user = new Individual(NIF,nome,email,morada,password,atividadesInd,COEFiscal,null, depend, familia);
                          break;
                 case 2:  System.out.print("Informações fator: "); 
                          INfat = is.nextLine(); 
@@ -195,10 +230,10 @@ public class JavaFaturaAPP
                 default: user = new Empresa();
             }
             try{  
-                jafat.registarUtilizador(user);
+                jafat.registarUtilizador(user, familia);
             }
-            catch(UtilizadorExistenteException e) {  
-                System.out.println("Este utilizador já existe!");
+            catch(UtilizadorExistenteException | FamiliaInexistenteException e) {  
+                System.out.println(e.getMessage());
             }
         }
         else System.out.println("Registo cancelado!"); 
@@ -253,7 +288,13 @@ public class JavaFaturaAPP
                         break; 
                 case 3: faturaIndividual(); 
                         break;
-                case 4: deducaoTotal();
+                case 4: verFamilia(); 
+                        break;
+                case 5: deducaoTotal();
+                        break;
+                case 6: deducaoTotalAgregado();
+                        break;
+                case 7: visualizarFaturasFam();
                         break;
             }        
         }while(menu_individual.getOpcao() != 0);
@@ -274,29 +315,42 @@ public class JavaFaturaAPP
                         break;
                 case 5: faturasEmpresaContOrdVal(); 
                         break;
+                case 6: empresaLucro();
+                        break;
             }
         }while(menu_empresa.getOpcao() != 0);    
     }
-    
-    private static void running_menu_acede_fatura() { 
-        do{ 
-            menu_acede_fatura.executa(); 
-            switch(menu_acede_fatura.getOpcao()){ 
-                case 1: consultarFaturas(); 
-                        break;
-            }
-    
-        }while(menu_acede_fatura.getOpcao() != 0); 
-   }
-   
+       
    private static void running_menu_admin(){ 
        do{ 
            menu_admin.executa(); 
            switch(menu_admin.getOpcao()){ 
-                       case 1: System.out.print("lol"); 
+                       case 1: getTop10();
                                break;
             }
         }while(menu_admin.getOpcao() != 0);
+   }
+   
+   private static void getTop10(){
+       List<Individual> res = jafat.getTop10Util();
+       
+       for(Individual i : res){
+           System.out.print(i.getNIF());
+           System.out.print(i.getValDesTotal());
+        }
+        
+       
+    }
+   private static void verFamilia(){ 
+       int id = ((Individual)jafat.getUtilizador()).getIDfam();
+       Familia f = jafat.getFamilia(id);
+       
+       System.out.println(f);
+   }
+   
+   private static void empresaLucro(){
+       double res = jafat.getLucroEmp();
+       System.out.print("\n O lucro da empresa é: " + res);
    }
    
    private static void faturaIndividual(){
@@ -342,10 +396,27 @@ public class JavaFaturaAPP
    }
    
    private static void deducaoTotal(){
+       int idFam = ((Individual)jafat.getUtilizador()).getIDfam();
        
-       System.out.print("\n A sua dedução total é: " + (((Individual)jafat.getUtilizador()).getDeducaoTotal()));
+       double coefFam = jafat.getFamilia(idFam).getCoefFamilia();
        
+       System.out.print("\n A sua dedução total é: " + (((Individual)jafat.getUtilizador()).getDeducaoTotal(coefFam)));
+     
        
+   }
+   
+   public static void visualizarFaturasFam(){
+       List<Fatura> l = jafat.getFaturasFamilia();
+       
+       for(Fatura f : l){ 
+           System.out.println("\n****************** Faturas *******************\n"); 
+           System.out.println(f);
+           System.out.println("************************************************\n");
+       }
+    }
+    
+   private static void deducaoTotalAgregado(){
+       System.out.print("\n A dedução do agregado familiar é: " + jafat.getDeducaoAgregado());
     }
    private static void faturasEmpresaContIntervalo(){
        Scanner is = new Scanner(System.in);
@@ -411,31 +482,7 @@ public class JavaFaturaAPP
         }
        is.close();
     }
-    
-    /** Consulta faturas dado um determinado NIF */
-   private static void consultarFaturas(){ 
-        List<Consulta> lista = new ArrayList<Consulta>(); 
-        try{  
-            lista = jafat.getConsultas();
-        }
-        catch(SemAutorizacaoException e){ 
-            System.out.println(e.getMessage());
-        }
-        for(Consulta c: lista){  
-            String x = c.toString(); 
-            System.out.println(x);
-        }
-    }
-    
-    /**func que retorna os 10 cont com mais despesas*/
-   private static void topContribuidores(){   
-        Set<String> lista = new HashSet<String>(); 
-        lista = jafat.getTopFaturas(10); 
-        for(String  i:lista){ 
-            System.out.println(i);
-        }
-    }
-    
+      
     /*adiciona fatura a JavaFatura*/
    private static void adicionaFatura(){  
         Fatura fat = criaFatura(); 
@@ -443,11 +490,12 @@ public class JavaFaturaAPP
             try{  
                 jafat.registaFatura(fat);   
             }                     
-            catch(FaturaExisteException | SemAutorizacaoException e) {  
+            catch(FaturaExisteException | SemAutorizacaoException | UtilizadorExistenteException e) {  
                 System.out.println(e.getMessage());
             }
         }               
     }
+   
    
    /** cria fatura para ser adicionada a Javafatura **/
    private static Fatura criaFatura(){  
@@ -485,11 +533,12 @@ public class JavaFaturaAPP
                System.out.println("Valor da despesa inválido!");                
            }
            System.out.print("\n************************************************************************************************************************\n");
-           fatura = new Fatura(jafat.getUtilizador().getNIF(),desig,data,NIFc,desc,ativ,preco,null,-1,false);
+           fatura = new Fatura(jafat.getUtilizador().getNIF(),desig,data,NIFc,desc,ativ,preco,-1,false);
        }    
        is.close(); 
        return fatura;
-   }
+    
+    }
 
    private static void alteraFatura(){ 
         int id, natDes; 
