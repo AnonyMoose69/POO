@@ -5,24 +5,34 @@ import java.util.Scanner;
 
 public class Menu
 {
+    // variavéis de instância 
     private List<String> opcoes; 
     private int op; 
     
+    /**
+     * Construtor para objetos da classe Menu
+     */
     public Menu(String[] opcoes){ 
         this.opcoes = new ArrayList<String>(); 
         for(String op: opcoes) 
             this.opcoes.add(op);
         this.op = 0;
-    }
-
+     }
+     
+    /**
+     * Função para executar o menu.
+     */
     public void executa(){
         do{ 
            showMenu(); 
            this.op = lerOpcao();
     }
     while(this.op == -1);
-}
-
+    }
+    
+    /**
+     * Função para mostrar o menu.
+     */
     private void showMenu() {
         System.out.println("\n*************** MENU ***************");
         for (int i = 0; i<this.opcoes.size();i++) {  
@@ -33,7 +43,10 @@ public class Menu
         System.out.println("  0 - Sair"); 
         System.out.println("************************************");
     }
-
+    
+    /**
+     * Função ler uma opção do menu.
+     */
     private int lerOpcao() {  
         int op; 
         Scanner is = new Scanner(System.in);
@@ -51,7 +64,11 @@ public class Menu
         }
         return op;
     }
-
+    
+    /**
+     * Obter opção selecionada.
+     * @return 
+     */
     public int getOpcao() {  
         return this.op;
     }

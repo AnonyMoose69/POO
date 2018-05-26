@@ -1,8 +1,10 @@
 #BlueJ class context
 comment0.target=Educacao
-comment0.text=\r\n\ Write\ a\ description\ of\ class\ Educacao\ here.\r\n\r\n\ @author\ (your\ name)\r\n\ @version\ (a\ version\ number\ or\ a\ date)\r\n
+comment0.text=\ \r\n\ Classe\ destinada\ a\ designar\ uma\ atividade\ educa\u00E7\u00E3o\ na\ JavaFatura\ \ \r\n\ \r\n\ @author\ Grupo\ 34\r\n
 comment1.params=
 comment1.target=Educacao()
+comment1.text=\ \r\n\ Construtor\ base\ \r\n
 comment2.params=valor
 comment2.target=double\ getDeducao(double)
+comment2.text=\ \r\n\ Obtem\ a\ dedu\u00E7\u00E3o\ associada\ a\ esta\ \u00E1rea\ de\ atividade\ \r\n\ @param\ valor\ \r\n\ @return\ \r\n
 numComments=3

@@ -17,7 +17,7 @@ public class Fatura implements Serializable
     private String DESIGe; 
     /* Data da despesa */
     private LocalDateTime DataCriada; 
-    /* Data das últimas alteração */
+    /* Lista com a data das últimas alteração */
     private List<LocalDateTime> DataAlterada;
     /* NIF do contribuinte */
     private String NIFc; 
@@ -31,7 +31,10 @@ public class Fatura implements Serializable
     private int id;
     /* booleano de fatura válida */
     private boolean valida;
-
+    
+    /** 
+     * Cria uma instância de uma fatura
+     */
     public Fatura(){ 
         this.NIFe = "n/a"; 
         this.DESIGe = "n/a"; 
@@ -44,7 +47,11 @@ public class Fatura implements Serializable
         this.id = -1;
         this.valida = false;
     }
-
+    
+    /** 
+     * Construtor por côpia 
+     * @param f
+     */
     public Fatura(Fatura f){ 
         this.NIFe = f.getNIFe(); 
         this.DESIGe = f.getDESIGe(); 
@@ -57,7 +64,19 @@ public class Fatura implements Serializable
         this.id = f.getId();
         this.valida = f.getValida();
     }
-
+    
+    /** 
+     * Construtor por parâmetro  
+     * @param NIFe 
+     * @param DESIGe 
+     * @param Data 
+     * @param NIFc 
+     * @param Desc 
+     * @param NatDes 
+     * @param ValDes 
+     * @param id 
+     * @param valida
+     */
     public Fatura(String NIFe, String DESIGe, LocalDateTime Data, String NIFc, String Desc, Atividade NatDes, double ValDes, int id, boolean valida){ 
         this.NIFe = NIFe; 
         this.DESIGe = DESIGe; 
@@ -71,16 +90,35 @@ public class Fatura implements Serializable
         this.id = id;
         this.valida = valida;
     }
-
+    
+    /** 
+     * Devolve o NIF do emitente da fatura 
+     * @return 
+     */
     public String getNIFe(){ 
         return this.NIFe;
     }
+    
+    /** 
+     * Devolve a designação do emitente  
+     * @return 
+     */
     public String getDESIGe(){ 
         return this.DESIGe;
     }
+    
+    /** 
+     * Devolve a data de criação da fatura 
+     * @return 
+     */
     public LocalDateTime getDataCr(){ 
         return this.DataCriada;
     }
+    
+    /** 
+     * Devolve a lista das datas das alterações a fatura 
+     * @return 
+     */
     public List<LocalDateTime> getDataAlt(){ 
         List<LocalDateTime> l = new ArrayList<>();
         
@@ -90,17 +128,36 @@ public class Fatura implements Serializable
         
         return l;
     }
+    
+    /** 
+     * Devolve o NIF do contribuinte da fatura 
+     * @return 
+     */
     public String getNIFc(){ 
         return this.NIFc;
     }
+    
+    /** 
+     * Devolve a descrição da fatura 
+     * @return 
+     */
     public String getDesc(){ 
         return this.Desc;
     }
+    
+    /** 
+     * Devolve a natureza da despesa da fatura 
+     * @return 
+     */
     public Atividade getNatDes(){ 
         if(this.NatDes.size() != 0) return this.NatDes.get(this.NatDes.size() - 1);
         else return new Atividade(); 
     }
     
+    /** 
+     * Devolve a lista das ativadades da fatura 
+     * @return 
+     */
     public List<Atividade> getNatDesList(){
         List<Atividade> l = new ArrayList<>();
         
@@ -110,27 +167,59 @@ public class Fatura implements Serializable
         
         return l;
     }
+    
+    /** 
+     * Devolve o valor da despesa da fatura 
+     * @return 
+     */
     public double getValDes(){ 
         return this.ValDes;
     }
-    
+        
+    /** 
+     * Devolve o id da fatura 
+     * @return 
+     */
     public int getId(){
         return this.id;
     }
     
+    /** 
+     * Devolve o teste se uma fatura é válida 
+     * @return 
+     */
     public boolean getValida(){
         return this.valida;
     }
     
+    /** 
+     * Define o NIF emitente da fatura 
+     * @param NIFe 
+     */
     public void setNIFe(String NIFe){ 
         this.NIFe = NIFe;
     }
+    
+    /** 
+     * Define a designação do emitente 
+     * @param DESIGe 
+     */
     public void setDESIGe(String DESIGe){ 
         this.DESIGe = DESIGe;
     }
+    
+    /** 
+     * Define a data de criação da fatura 
+     * @param Data
+     */
     public void setDataCr(LocalDateTime Data){ 
         this.DataCriada = Data;
     }
+    
+    /** 
+     * Define a lista das datas alteradas 
+     * @param datas 
+     */
     public void setDataAlt (List<LocalDateTime> datas){ 
         List<LocalDateTime> l = new ArrayList<>();
         
@@ -140,35 +229,70 @@ public class Fatura implements Serializable
         
         this.DataAlterada = l;
     }    
+    
+    /** 
+     * Define o NIF contribuinte da fatura 
+     * @param NIFc 
+     */
     public void setNIFc(String NIFc){ 
         this.NIFc = NIFc;
     }
+    
+    /** 
+     * Define a descrição da fatura 
+     * @param Desc
+     */
     public void setDesc(String Desc){ 
         this.Desc = Desc;
     }
+    
+    /** 
+     * Define a natureza da despesa de uma fatura 
+     * @param NatDes
+     */
     public void setNatDes(Atividade NatDes){ 
         if(!NatDes.getAtiv().equals("")){
             this.NatDes.add(Atividade.fromString(NatDes.getAtiv()));
             this.DataAlterada.add(LocalDateTime.now());
         }
     }
+    
+    /** 
+     * Define o valor da despesa de uma fatura 
+     * @param ValDes
+     */
     public void setValDes(double ValDes){ 
         this.ValDes= ValDes;
     }
     
+    /** 
+     * Define o id da fatura 
+     * @param id 
+     */
     public void setId(int id){
         this.id = id;
     }
     
+    /** 
+     * Define a validez da fatura 
+     * @param valida 
+     */
     public void setValida(boolean valida){
         this.valida = valida;
     }
-
-
+    
+    /** 
+     * Devolve a cópia da fatura 
+     */
     public Fatura clone(){ 
         return new Fatura(this);
     }
     
+    /** 
+     * Compara a igualdade com outro objeto 
+     * @param obj 
+     * @return 
+     */
     public boolean equals(Object obj){ 
         if(obj == this){ 
             return true;
@@ -195,7 +319,11 @@ public class Fatura implements Serializable
                && f.getDesc().equals(this.Desc) 
                && f.getValDes() == this.ValDes && f.getId() == this.id && this.valida == f.getValida();
     }
-
+    
+    /** 
+     * Devolve os parâmetros da fatura na forma de String 
+     * @return 
+     */
     public String toString(){ 
     StringBuilder str; 
     str = new StringBuilder(); 

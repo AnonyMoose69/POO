@@ -22,6 +22,9 @@ public class JavaFaturaAPP
     
     private JavaFaturaAPP() {} 
     
+    /**
+     * Função que faz executar toda a aplicação JavaFaturaAPP
+     */
     public static void main(String[] args) {  
         Utilizador user;
         String file_name = "fat_estado.txt"; 
@@ -36,7 +39,10 @@ public class JavaFaturaAPP
         }
         System.out.println("Volte Sempre!");
     }
-
+    
+    /**
+     * Apresenta o menu principal.
+     */
     private static void apresentarMenu(){  
         int running = 1;         
         do { 
@@ -65,6 +71,9 @@ public class JavaFaturaAPP
     }    while(running!=0);
     } 
     
+    /**
+     * Apresenta o Menu consoante o tipo de utilizador com sessão iniciada.
+     */
     private static void menu() {  
     
         if(jafat.getUtilizador() == null) 
@@ -80,7 +89,9 @@ public class JavaFaturaAPP
         }
     } 
 
-
+    /**
+     * Carrega todos os menus para apresentar.
+     */
     private static void carregarMenus() {  
         String[] menu0 = {"Menu", 
                          "Fechar sessão"}; 
@@ -117,7 +128,10 @@ public class JavaFaturaAPP
         menu_admin = new Menu(menu6);
     }
   
-    /** carrega o estado da aplicação desde a últiva vez que foi fechada. */
+    /**
+     * Carrega o estado da aplicação da última vez que esta foi fechada.
+     * @param fich
+     */
     private static void initApp(String fich) { 
         try {            jafat = JavaFatura.leObj(fich); 
         } 
@@ -134,7 +148,10 @@ public class JavaFaturaAPP
             System.out.println("Não foi possível ler os dados!\nFicheiro com formato errado.");
         }
     } 
-
+    
+    /**
+     * Registo na ImobiliáriaApp e todas as consequências deste mesmo
+     */
     private static void registo() {   
         Utilizador user; 
         Scanner is = new Scanner(System.in);  
@@ -239,7 +256,10 @@ public class JavaFaturaAPP
         else System.out.println("Registo cancelado!"); 
         is.close();
     }
-
+        
+    /**
+     * Inicio de sessão na JavaFaturaAPP
+     */
     private static void iniciarSessao() { 
         Scanner is = new Scanner(System.in); 
         String NIF,password; 
@@ -256,8 +276,11 @@ public class JavaFaturaAPP
         }
         is.close();
     }
-    
-       private static void iniciarSessaoAd() { 
+        
+    /**
+     * Inicio de sessão como adminstrador na JavaFaturaAPP
+     */
+    private static void iniciarSessaoAd() { 
         Scanner is = new Scanner(System.in); 
         String NIF,password; 
         System.out.print("NIF: "); 
@@ -274,10 +297,16 @@ public class JavaFaturaAPP
         is.close();
     }
     
+    /**
+     * Fechar sessão na JavaFaturaAPP
+     */
     private static void fecharSessao(){ 
         jafat.fechaSessao();
     }
-
+    
+    /**
+     * Executar o menu para individuais registados na JavaFaturaAPP
+     */
     private static void running_menu_individual(){  
         do{ 
             menu_individual.executa(); 
@@ -300,7 +329,10 @@ public class JavaFaturaAPP
         }while(menu_individual.getOpcao() != 0);
     
     }
-
+    
+    /**
+     * Executar o menu para empresas registadas na JavaFaturaAPP
+     */
     private static void running_menu_empresa() {  
         do{ 
             menu_empresa.executa(); 
@@ -320,8 +352,11 @@ public class JavaFaturaAPP
             }
         }while(menu_empresa.getOpcao() != 0);    
     }
-       
-   private static void running_menu_admin(){ 
+    
+    /**
+     * Executar o menu para adminstradores no JavaFaturaAPP
+     */
+    private static void running_menu_admin(){ 
        do{ 
            menu_admin.executa(); 
            switch(menu_admin.getOpcao()){ 
@@ -329,9 +364,12 @@ public class JavaFaturaAPP
                                break;
             }
         }while(menu_admin.getOpcao() != 0);
-   }
-   
-   private static void getTop10(){
+    }
+    
+    /** 
+     * Obter o top 10 utilizadores que mais gastam no sistema 
+     */
+    private static void getTop10(){
        List<Individual> res = jafat.getTop10Util();
        
        for(Individual i : res){
@@ -341,19 +379,29 @@ public class JavaFaturaAPP
         
        
     }
-   private static void verFamilia(){ 
+    
+    /** 
+     * Print de uma determinada familia
+     */
+    private static void verFamilia(){ 
        int id = ((Individual)jafat.getUtilizador()).getIDfam();
        Familia f = jafat.getFamilia(id);
        
        System.out.println(f);
-   }
-   
-   private static void empresaLucro(){
+    }
+    
+    /** 
+     * Calcular o lucro de uma empresa 
+     */
+    private static void empresaLucro(){
        double res = jafat.getLucroEmp();
        System.out.print("\n O lucro da empresa é: " + res);
-   }
+    }
    
-   private static void faturaIndividual(){
+    /** 
+     * Fazer print de uma determinada fatura dado um id desta mesma 
+     */
+    private static void faturaIndividual(){
        Scanner is = new Scanner(System.in);
       
        System.out.print("Id da fatura desejada: ");
@@ -367,9 +415,12 @@ public class JavaFaturaAPP
             System.out.println(e.getMessage());
         }
        is.close();
-    }
-   // devolve todas as faturas EMPRESA dado um NIF 
-   private static void faturasEmpresaOrdValor(){
+     }
+   
+    /** 
+     * Print de faturas ordenadas por valor 
+     */
+    private static void faturasEmpresaOrdValor(){
 
             List<Fatura> faturasEmpresa = jafat.getFaturasPorValor(jafat.getUtilizador().getNIF());  
         
@@ -380,11 +431,12 @@ public class JavaFaturaAPP
                 System.out.println("************************************************\n");
         
         }    
-   }
+    }
    
-   
-    
-   private static void faturasEmpresaOrdData(){ 
+    /** 
+     * Print das faturas ordenadas por data 
+     */   
+    private static void faturasEmpresaOrdData(){ 
     
        List<Fatura> faturasEmpresa = jafat.getFaturasPorData(jafat.getUtilizador().getNIF()); 
        
@@ -393,9 +445,12 @@ public class JavaFaturaAPP
            System.out.println(f);
            System.out.println("************************************************\n");
        }
-   }
+    }
    
-   private static void deducaoTotal(){
+    /** 
+     * Calcular a dedução total tendo em contra o individual e agregado 
+     */
+    private static void deducaoTotal(){
        int idFam = ((Individual)jafat.getUtilizador()).getIDfam();
        
        double coefFam = jafat.getFamilia(idFam).getCoefFamilia();
@@ -403,9 +458,12 @@ public class JavaFaturaAPP
        System.out.print("\n A sua dedução total é: " + (((Individual)jafat.getUtilizador()).getDeducaoTotal(coefFam)));
      
        
-   }
+    }
    
-   public static void visualizarFaturasFam(){
+    /** 
+     * Print das faturas da familia (agregado)
+     */
+    public static void visualizarFaturasFam(){
        List<Fatura> l = jafat.getFaturasFamilia();
        
        for(Fatura f : l){ 
@@ -415,10 +473,17 @@ public class JavaFaturaAPP
        }
     }
     
-   private static void deducaoTotalAgregado(){
+    /** 
+     * Calculo da dedução total do agregado
+     */
+    private static void deducaoTotalAgregado(){
        System.out.print("\n A dedução do agregado familiar é: " + jafat.getDeducaoAgregado());
     }
-   private static void faturasEmpresaContIntervalo(){
+    
+    /** 
+     * Obter e fazer print da lista de faturas num determinado intervalo de tempo 
+     */
+    private static void faturasEmpresaContIntervalo(){
        Scanner is = new Scanner(System.in);
        int ano_inicio, ano_fim, mes_inicio, mes_fim, dia_inicio, dia_fim;
        String NIFco;
@@ -460,7 +525,10 @@ public class JavaFaturaAPP
        is.close();
     }
     
-   private static void faturasEmpresaContOrdVal(){
+    /** 
+     * Obter e fazer print das listas de faturas ordenadas por valor 
+     */
+    private static void faturasEmpresaContOrdVal(){
        Scanner is = new Scanner(System.in);
        String NIFco;
        
@@ -483,8 +551,10 @@ public class JavaFaturaAPP
        is.close();
     }
       
-    /*adiciona fatura a JavaFatura*/
-   private static void adicionaFatura(){  
+    /** 
+     * Adiciona uma fatura a JavaFatura 
+     */
+    private static void adicionaFatura(){  
         Fatura fat = criaFatura(); 
         if(fat!=null){  
             try{  
@@ -496,9 +566,11 @@ public class JavaFaturaAPP
         }               
     }
    
-   
-   /** cria fatura para ser adicionada a Javafatura **/
-   private static Fatura criaFatura(){  
+    /** 
+     * Cria uma fatura para ser adicionada a JavaFatura 
+     * @return 
+     */
+    private static Fatura criaFatura(){  
        Fatura fatura = null; 
        Atividade ativ;
        Scanner is = new Scanner(System.in); 
@@ -539,8 +611,11 @@ public class JavaFaturaAPP
        return fatura;
     
     }
-
-   private static void alteraFatura(){ 
+    
+    /** 
+     * Altera o estado de uma fatura 
+     */
+    private static void alteraFatura(){ 
         int id, natDes; 
         Atividade r;
         Scanner is = new Scanner(System.in); 
@@ -562,10 +637,12 @@ public class JavaFaturaAPP
                 }
                 
         is.close();
-   }
-      
-   //consulta faturas do contribuinte com determinado NIF --- passar fatura f para dentro do alteraFatura e depois faz set dos correspondentes valores no setFatura
-   private static void consultaFaturas(){ 
+    }
+    
+    /** 
+     * Consultar a lista de faturas do utilizador 
+     */
+    private static void consultaFaturas(){ 
         Scanner is = new Scanner(System.in); 
         List<Fatura> lista = new ArrayList<Fatura>(); 
         String in; 

@@ -2,12 +2,17 @@
 comment0.target=Menu
 comment1.params=opcoes
 comment1.target=Menu(java.lang.String[])
+comment1.text=\r\n\ Construtor\ para\ objetos\ da\ classe\ Menu\r\n
 comment2.params=
 comment2.target=void\ executa()
+comment2.text=\r\n\ Fun\u00E7\u00E3o\ para\ executar\ o\ menu.\r\n
 comment3.params=
 comment3.target=void\ showMenu()
+comment3.text=\r\n\ Fun\u00E7\u00E3o\ para\ mostrar\ o\ menu.\r\n
 comment4.params=
 comment4.target=int\ lerOpcao()
+comment4.text=\r\n\ Fun\u00E7\u00E3o\ ler\ uma\ op\u00E7\u00E3o\ do\ menu.\r\n
 comment5.params=
 comment5.target=int\ getOpcao()
+comment5.text=\r\n\ Obter\ op\u00E7\u00E3o\ selecionada.\r\n\ @return\ \r\n
 numComments=6
