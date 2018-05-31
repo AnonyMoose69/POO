@@ -150,6 +150,14 @@ public class Individual extends Utilizador
    }
    
    /** 
+    * Constroi e devolve uma string da class Individual
+    * @return
+    */
+   public String toString(){
+       String s = super.toString();
+       return s;
+    }
+   /** 
     * Adiciona fatura a um individual 
     * @param f 
     */
@@ -191,7 +199,7 @@ public class Individual extends Utilizador
    public void setDepend(boolean t){
        this.depend = t;
    }
-    
+   
    /** 
     * Define o id da família (agregado) de um individual  
     * @param id
@@ -219,23 +227,37 @@ public class Individual extends Utilizador
    public double getValDesTotal(){
        return this.faturas.stream().mapToDouble(Fatura::getValDes).sum();
    }
-    
+   /**
+    * Obter a dedução fiscal de uma fatura
+    * @param fatura
+    * @param coeficienteFam
+    * @return
+    */
+   public double getDeducaoFatura(Fatura fatura, double coeficienteFam){
+          double res = 0.0;
+          
+          Atividade a = fatura.getNatDes();
+          String s = a.getAtiv();
+          if(fatura.getValida() && this.pertenceAtiv(s)) res += (Atividade.fromString(s).getDeducao(fatura.getValDes())) + (fatura.getValDes() * this.COEFiscal);
+          if(fatura.getValida()) res += fatura.getValDes() * coeficienteFam;
+          
+          return res;
+    }
    /** 
-    * Obter a dedução total de um individual e do seu agregado  
+    * Obter a dedução total de um individual  
     * @param coeficienteFam  
     * @return 
     */
    public double getDeducaoTotal(double coeficienteFam){
        List<Fatura> l = this.faturas;
-       Double res = 0.0;
+       double res = 0.0;
        
        for(Fatura f : l){
-            Atividade a = f.getNatDes();
-            String s = a.getAtiv();
-            if(f.getValida() && this.pertenceAtiv(s)) res += (Atividade.fromString(s).getDeducao(f.getValDes())) + (f.getValDes() * this.COEFiscal);
-            if(f.getValida()) res += f.getValDes() * coeficienteFam;
+           res += getDeducaoFatura(f, coeficienteFam);
         }
        
        return res;
    }
+   
+   
 }

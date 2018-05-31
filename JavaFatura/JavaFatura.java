@@ -1,6 +1,7 @@
 import java.util.Set; 
 import java.util.TreeSet; 
 import java.util.Collections;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator; 
 import java.util.HashSet; 
@@ -335,6 +336,16 @@ public class JavaFatura implements Serializable
         return res;
     }
     
+    /**
+     * @return
+     */
+    public double deducaoTotalInd(){
+       int idFam = ((Individual)this.getUtilizador()).getIDfam();
+       
+       double coefFam = this.getFamilia(idFam).getCoefFamilia();
+       
+       return (((Individual)this.getUtilizador()).getDeducaoTotal(coefFam));
+    }
     /** 
      * Devolve a sub lista de faturas de uma empresa com um determinado contribuinte 
      * @param l 
@@ -369,24 +380,66 @@ public class JavaFatura implements Serializable
      * Obter o lucro total de uma empresa 
      * @return 
      */
-    public double getLucroEmp(){
+    public double getLucroEmp(LocalDateTime begin, LocalDateTime end){
         Empresa emp = (Empresa) this.getUtilizador();
         
-        return emp.getLucro();
+        return emp.getLucro(begin, end);
+    }
+    /**
+     * Obter uma lista das x empresas que mais faturas têm no sistema
+     * @param x
+     */
+    public Collection<Empresa> getTopXEmpMaisFat(int x){
+        List<Empresa> total = new ArrayList<Empresa>();
+        for(Utilizador u : this.utilizadores.values()){
+            if(u.getClass().getSimpleName().equals("Empresa")) total.add(((Empresa)u).clone());
+        }
+        
+        List<Empresa> res = total.stream().sorted(Comparator.comparing(Empresa::getFaturaSize).reversed()).collect(Collectors.toList());
+        
+        if(res.size()<=x) return res;
+        else{
+            List<Empresa> resu = new ArrayList<Empresa>();
+            for(int i = 0; i<x; i++){
+                resu.add(res.get(i));
+            }
+            
+            return resu;
+        }
     }
     
+    /**
+     * Dentro das empresas que mais faturas têm, calcular a dedução fiscal desse conjunto de faturas e devolver uma coleção com elas
+     * @param topX
+     * @return
+     */
+    public Collection<Double> getTopXEmpresasDeducao(Collection<Empresa> topX){
+        List<Double> lista = new ArrayList<Double>();
+        for (Empresa e : topX){
+            Map<Integer,Fatura> l = e.getFaturas();
+            double res = 0.0;
+            for(Fatura f : l.values()){
+                Individual i = (Individual) this.getUtilizador(f.getNIFc());
+                double coefFam = this.familias.get(i.getIDfam()).getCoefFamilia();
+                res += i.getDeducaoFatura(f, coefFam);
+            }
+            lista.add(res);
+        }
+        
+        return lista;
+    }
     /** 
      * Obter a lista dos top 10 utilizadores com maior gasto no sistema 
      * @return 
      */
-    public List<Individual> getTop10Util(){
+    public Collection<Individual> getTop10Util(){
         List<Individual> total = new ArrayList<Individual>();
         for(Utilizador u : this.utilizadores.values()){
-            if(this.utilizador.getClass().getSimpleName().equals("Individual")) total.add((Individual) u);
+            if(u.getClass().getSimpleName().equals("Individual")) total.add(((Individual)u).clone());
         }
         
         List<Individual> res = total.stream().sorted(Comparator.comparing(Individual::getValDesTotal).reversed()).collect(Collectors.toList());
-        
+      
         if(res.size()<=10) return res;
         else{
             List<Individual> resu = new ArrayList<Individual>();
@@ -425,14 +478,18 @@ public class JavaFatura implements Serializable
         List<String> f = this.familias.get(idf).getNIFS();
         List<Fatura> res = new ArrayList<Fatura>();
         for(String s : f){
-            res.addAll(this.getFaturasIndividual(s));
+            List<Fatura> aux = this.getFaturasIndividual(s);
+            
+            for(Fatura fatur: aux){
+                res.add(fatur);
+            }
         }
         
         return res;
     }
     
     /** 
-     * Obter a lista de faturas num dado intervalo de tempo 
+     * Obter a lista de faturas num dado intervalo de tempo de um contribuinte
      * @param NIFe 
      * @param NIFc 
      * @param begin
@@ -454,7 +511,7 @@ public class JavaFatura implements Serializable
     }
     
     /** 
-     * Obter a lista de faturas de um contribuinte ordenadas por valor 7
+     * Obter a lista de faturas de um contribuinte ordenadas por valor descrescente
      * @param NIFe 
      * @param NIFc 
      * @return

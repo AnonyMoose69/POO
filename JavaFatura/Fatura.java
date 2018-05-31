@@ -155,7 +155,7 @@ public class Fatura implements Serializable
     }
     
     /** 
-     * Devolve a lista das ativadades da fatura 
+     * Devolve a lista das atividades da fatura 
      * @return 
      */
     public List<Atividade> getNatDesList(){

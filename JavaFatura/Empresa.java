@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.stream.Collectors; 
 import static java.util.stream.Collectors.toMap; 
+import java.time.LocalDateTime;
+
 
 /** 
  * Classe destinada a designar uma empresa na JavaFatura 
@@ -64,12 +66,19 @@ public class Empresa extends Utilizador
    }
    
    /** 
-    * Devolve a lista de faturas de uma empresa 
+    * Devolve uma map das faturas de uma empresa 
     * @return 
     */
    public Map<Integer,Fatura> getFaturas(){ 
        return this.faturas.entrySet().stream().collect(toMap(e->e.getKey(), e->e.getValue().clone()));
    }
+   /**
+    * Devolve o nº de faturas de uma empresa
+    * @return
+    */
+   public int getFaturaSize(){
+       return this.faturas.size();
+    }
 
    /** 
     * Define a lista de faturas de uma empresa  
@@ -120,9 +129,14 @@ public class Empresa extends Utilizador
     * Obter o lucro de uma empresa através das faturas passadas por esta 
     * @return 
     */
-   public double getLucro(){
-       return this.faturas.values().stream().mapToDouble(Fatura::getValDes).sum();
+   public double getLucro(LocalDateTime begin, LocalDateTime end){
+       List<Fatura> lista = this.faturas.values().stream()
+                                                 .filter(f -> f.getDataCr().isAfter(begin) && f.getDataCr().isBefore(end))
+                                                 .collect(Collectors.toList());
+                                                 
+       return lista.stream().mapToDouble(Fatura::getValDes).sum();
    }
+   
    
    /** 
     * Devolve uma cópia da empresa 
@@ -146,6 +160,14 @@ public class Empresa extends Utilizador
            return (super.equals(e));
    }
    
+    /** 
+    * Constroi e devolve uma string da class Empresa
+    * @return
+    */
+   public String toString(){
+       String s = super.toString();
+       return s;
+   }
    /** 
     * Adiciona uma fatura a uma empresa 
     * @param f

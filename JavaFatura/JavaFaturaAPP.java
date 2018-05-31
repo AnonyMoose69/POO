@@ -1,6 +1,7 @@
 import java.io.IOException; 
 import java.util.Scanner; 
 import java.util.ArrayList; 
+import java.util.Collection;
 import java.util.Map; 
 import java.util.List; 
 import java.util.InputMismatchException; 
@@ -114,10 +115,12 @@ public class JavaFaturaAPP
                          "Consultar faturas ordenada por data",
                          "Consultar faturas de um contribuinte no intervalo de tempo pretendido",
                          "Consultar faturas de um contribuinte ordenadas por valor decrescente",
-                         "Lucro da Empresa"
+                         "Lucro da Empresa num intervalo de tempo"
                          };
         String[] menu5 = {"Fatura Nova"}; 
-        String[] menu6 = {"Top 10 contribuidores que mais gastam no sistema"};
+        String[] menu6 = {"Top 10 contribuidores que mais gastam no sistema",
+                          "Top X empresas com mais faturas associadas no sistema (com valores da deduções)"
+                         };
         
         menu_logado = new Menu(menu0);  
         menu_principal = new Menu(menu1); 
@@ -362,6 +365,8 @@ public class JavaFaturaAPP
            switch(menu_admin.getOpcao()){ 
                        case 1: getTop10();
                                break;
+                       case 2: getTopXEmp();
+                               break;
             }
         }while(menu_admin.getOpcao() != 0);
     }
@@ -370,14 +375,35 @@ public class JavaFaturaAPP
      * Obter o top 10 utilizadores que mais gastam no sistema 
      */
     private static void getTop10(){
-       List<Individual> res = jafat.getTop10Util();
-       
-       for(Individual i : res){
-           System.out.print(i.getNIF());
-           System.out.print(i.getValDesTotal());
+       Collection<Individual> res = jafat.getTop10Util();
+       int i = 1;
+       for(Individual u : res){
+           System.out.print("\n NIF - " + u.getNIF() + "   Valor gasto: ");
+           System.out.print(u.getValDesTotal());
+        }
+    }
+    
+    /**
+     * Obter o top X empresas com mais faturas e a deducão fiscal do seu conjunto de faturas
+     */
+    private static void getTopXEmp(){
+        Scanner is = new Scanner(System.in);
+        int x;
+        System.out.print("\n X (nº de empresas que deseja ver no top):  ");
+        x = is.nextInt();
+        
+        Collection<Empresa> topX =  jafat.getTopXEmpMaisFat(x);
+        Collection<Double> ded = jafat.getTopXEmpresasDeducao(topX);
+        Double[] dedu = new Double[x];
+        ded.toArray(dedu);
+        int i = 1;
+        
+        for(Empresa e : topX){
+            System.out.print("\n " + i + " - " + "NIF da empresa " + e.getNIF() + " Valor de dedução: " + dedu[i-1]);
+            i++;
         }
         
-       
+        is.close();
     }
     
     /** 
@@ -394,7 +420,36 @@ public class JavaFaturaAPP
      * Calcular o lucro de uma empresa 
      */
     private static void empresaLucro(){
-       double res = jafat.getLucroEmp();
+       Scanner is = new Scanner(System.in);
+       int ano_inicio, ano_fim, mes_inicio, mes_fim, dia_inicio, dia_fim, hora_inicio, hora_fim, minuto_fim, minuto_inicio;
+
+       System.out.print("\n Indique o ano do inicio: (4 digitos)  ");
+       ano_inicio = is.nextInt();
+       System.out.print("\n Indique o mês do inicio: (entre 1 e 12)  ");
+       mes_inicio = is.nextInt();
+       System.out.print("\n Indique o dia do inicio: (apenas entre o nº de dias do mês)  ");
+       dia_inicio = is.nextInt();
+       System.out.print("\n Indique a hora do inicio: (entre 0 e 24)   ");
+       hora_inicio = is.nextInt();
+       System.out.print("\n Indique o minuto do inicio: (entre 0 e 60)   ");
+       minuto_inicio = is.nextInt();
+       System.out.print("\n Indique o ano do fim: (4 digitos)  ");
+       ano_fim = is.nextInt();
+       System.out.print("\n Indique o mês do fim: (entre 1 e 12)  ");
+       mes_fim = is.nextInt();
+       System.out.print("\n Indique o dia do fim: (apenas entre o nº de dias do mês)  ");
+       dia_fim = is.nextInt(); 
+       System.out.print("\n Indique a hora do fim: (entre 0 e 24)   ");
+       hora_fim = is.nextInt();
+       System.out.print("\n Indique o minuto do fim: (entre 0 e 60)   ");
+       minuto_fim = is.nextInt();
+       
+       LocalDateTime begin = LocalDateTime.of(ano_inicio, mes_inicio, dia_inicio, hora_inicio, minuto_inicio);
+       LocalDateTime end = LocalDateTime.of(ano_fim, mes_fim, dia_fim, hora_fim, minuto_fim);
+       
+       if(!(begin.isBefore(end))) {System.out.print("As datas são inválidas!"); return;}
+       
+       double res = jafat.getLucroEmp(begin, end);
        System.out.print("\n O lucro da empresa é: " + res);
     }
    
@@ -451,13 +506,9 @@ public class JavaFaturaAPP
      * Calcular a dedução total tendo em contra o individual e agregado 
      */
     private static void deducaoTotal(){
-       int idFam = ((Individual)jafat.getUtilizador()).getIDfam();
        
-       double coefFam = jafat.getFamilia(idFam).getCoefFamilia();
-       
-       System.out.print("\n A sua dedução total é: " + (((Individual)jafat.getUtilizador()).getDeducaoTotal(coefFam)));
+       System.out.print("\n A sua dedução total é: " + jafat.deducaoTotalInd());
      
-       
     }
    
     /** 
@@ -485,7 +536,7 @@ public class JavaFaturaAPP
      */
     private static void faturasEmpresaContIntervalo(){
        Scanner is = new Scanner(System.in);
-       int ano_inicio, ano_fim, mes_inicio, mes_fim, dia_inicio, dia_fim;
+       int ano_inicio, ano_fim, mes_inicio, mes_fim, dia_inicio, dia_fim, hora_inicio, minuto_inicio, hora_fim, minuto_fim;
        String NIFco;
        
        System.out.print("\n Indique o NIF do contribuinte que pretende:  ");
@@ -494,17 +545,25 @@ public class JavaFaturaAPP
        ano_inicio = is.nextInt();
        System.out.print("\n Indique o mês do inicio: (entre 1 e 12)  ");
        mes_inicio = is.nextInt();
-       System.out.print("\nIndique o dia do inicio: (apenas entre o nº de dias do mês)  ");
+       System.out.print("\n Indique o dia do inicio: (apenas entre o nº de dias do mês)  ");
        dia_inicio = is.nextInt();
-       System.out.print("\nIndique o ano do fim: (4 digitos)  ");
+       System.out.print("\n Indique a hora do inicio: (entre 0 e 24)   ");
+       hora_inicio = is.nextInt();
+       System.out.print("\n Indique o minuto do inicio: (entre 0 e 60)   ");
+       minuto_inicio = is.nextInt();
+       System.out.print("\n Indique o ano do fim: (4 digitos)  ");
        ano_fim = is.nextInt();
-       System.out.print("\nIndique o mês do fim: (entre 1 e 12)  ");
+       System.out.print("\n Indique o mês do fim: (entre 1 e 12)  ");
        mes_fim = is.nextInt();
-       System.out.print("\nIndique o dia do fim: (apenas entre o nº de dias do mês)  ");
-       dia_fim = is.nextInt();
+       System.out.print("\n Indique o dia do fim: (apenas entre o nº de dias do mês)  ");
+       dia_fim = is.nextInt(); 
+       System.out.print("\n Indique a hora do fim: (entre 0 e 24)   ");
+       hora_fim = is.nextInt();
+       System.out.print("\n Indique o minuto do fim: (entre 0 e 60)   ");
+       minuto_fim = is.nextInt();
        
-       LocalDateTime begin = LocalDateTime.of(ano_inicio, mes_inicio, dia_inicio, 0, 0);
-       LocalDateTime end = LocalDateTime.of(ano_fim, mes_fim, dia_fim, 0, 0);
+       LocalDateTime begin = LocalDateTime.of(ano_inicio, mes_inicio, dia_inicio, hora_inicio, minuto_inicio);
+       LocalDateTime end = LocalDateTime.of(ano_fim, mes_fim, dia_fim, hora_fim, minuto_fim);
        
        if(!(begin.isBefore(end))) {System.out.print("As datas são inválidas!"); return;}
        
@@ -605,7 +664,7 @@ public class JavaFaturaAPP
                System.out.println("Valor da despesa inválido!");                
            }
            System.out.print("\n************************************************************************************************************************\n");
-           fatura = new Fatura(jafat.getUtilizador().getNIF(),desig,data,NIFc,desc,ativ,preco,-1,false);
+           fatura = new Fatura(jafat.getUtilizador().getNIF(),desig,data,NIFc,desc,ativ,preco,-1, (natDes.size() == 1));
        }    
        is.close(); 
        return fatura;
